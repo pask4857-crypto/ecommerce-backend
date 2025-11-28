@@ -20,7 +20,7 @@ public class ProductController {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
 
-    // 取得所有產品，附帶主要圖片 URL
+    // 取得所有產品，附帶主要圖片檔名
     @GetMapping
     public List<ProductResponse> getAllProducts() {
         List<Product> products = productRepository.findAll();
@@ -54,6 +54,6 @@ public class ProductController {
         private String name;
         private Integer price;
         private String description;
-        private String image;
+        private String image; // 只放圖片檔名
     }
 }
