@@ -14,10 +14,12 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173") // Vue 開發伺服器
+                        .allowedOriginPatterns("http://localhost:5173")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
-                        .allowCredentials(true);
+                        .exposedHeaders("*")
+                        .allowCredentials(true)
+                        .maxAge(3600); // 預檢結果快取 1 小時
             }
         };
     }

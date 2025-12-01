@@ -6,6 +6,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -31,5 +33,7 @@ public class ProductImage {
     private Boolean isMain;
 
     @Column(name = "created_at")
+    @CreationTimestamp
     private LocalDateTime createdAt;
+
 }
