@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "product_images")
+@Table(name = "category_images")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductImage {
+public class CategoryImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,7 +18,7 @@ public class ProductImage {
 
     private String imageUrl;
 
-    private Long productId; // 商品ID
+    private Long categoryId; // 分類ID
 
     private Integer sortOrder; // 顯示順序
 

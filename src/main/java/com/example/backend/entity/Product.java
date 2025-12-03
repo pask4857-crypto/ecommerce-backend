@@ -2,16 +2,14 @@ package com.example.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "products")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "products")
 public class Product {
 
     @Id
@@ -20,11 +18,30 @@ public class Product {
     private Long productId;
 
     private String name;
-    private Integer price;
+
     private String description;
 
-    // 一個商品可以有多張圖片
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<ProductImage> images;
+    private String sku; // 商品編號
+
+    private Double price;
+
+    private Double discountPrice; // 折扣價
+
+    private Integer stock;
+
+    private Integer stockWarning; // 庫存警示值
+
+    private Double weight; // 商品重量
+
+    private Boolean isActive; // 上架/下架狀態
+
+    private Long categoryId; // 分類ID
+
+    private String mainImage;
+
+    private Integer sales; // 銷售量
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }
