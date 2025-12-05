@@ -1,43 +1,68 @@
 package com.example.backend.service;
 
-import com.example.backend.entity.ProductImage;
-import com.example.backend.repository.ProductImageRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.example.backend.dto.ProductImageDTO;
+import com.example.backend.entity.ProductImage;
+import com.example.backend.repository.ProductImageRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ProductImageService {
 
     private final ProductImageRepository productImageRepository;
 
-    public ProductImageService(ProductImageRepository productImageRepository) {
-        this.productImageRepository = productImageRepository;
+    // DTO → Entity
+    public ProductImage toEntity(ProductImageDTO dto) {
+        return ProductImage.builder()
+                .imageId(dto.getImageId())
+                .productId(dto.getProductId())
+                .imageUrl(dto.getImageUrl())
+                .altText(dto.getAltText())
+                .sortOrder(dto.getSortOrder())
+                .build();
     }
 
-    // 查詢全部商品圖片
-    public List<ProductImage> getAllProductImages() {
-        return productImageRepository.findAll();
+    // Entity → DTO
+    public ProductImageDTO toDTO(ProductImage img) {
+        return ProductImageDTO.builder()
+                .imageId(img.getImageId())
+                .productId(img.getProductId())
+                .imageUrl(img.getImageUrl())
+                .altText(img.getAltText())
+                .sortOrder(img.getSortOrder())
+                .build();
     }
 
-    // 根據 ID 查詢
-    public Optional<ProductImage> getProductImageById(Long id) {
-        return productImageRepository.findById(id);
+    // CRUD
+    public List<ProductImageDTO> getAll() {
+        return productImageRepository.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    // 查詢某商品的所有圖片
-    public List<ProductImage> getImagesByProductId(Long productId) {
-        return productImageRepository.findByProductId(productId);
+    public Optional<ProductImageDTO> getById(Long id) {
+        return productImageRepository.findById(id).map(this::toDTO);
     }
 
-    // 新增或更新圖片
-    public ProductImage saveProductImage(ProductImage image) {
-        return productImageRepository.save(image);
+    public List<ProductImageDTO> getByProduct(Long productId) {
+        return productImageRepository.findByProductId(productId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    // 刪除圖片
-    public void deleteProductImage(Long id) {
+    public ProductImageDTO save(ProductImageDTO dto) {
+        ProductImage saved = productImageRepository.save(toEntity(dto));
+        return toDTO(saved);
+    }
+
+    public void delete(Long id) {
         productImageRepository.deleteById(id);
     }
 }

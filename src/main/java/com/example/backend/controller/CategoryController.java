@@ -1,51 +1,51 @@
 package com.example.backend.controller;
 
-import com.example.backend.entity.Category;
-import com.example.backend.service.CategoryService;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Optional;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.backend.dto.CategoryDTO;
+import com.example.backend.service.CategoryService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/categories")
-@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class CategoryController {
 
     private final CategoryService categoryService;
 
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
-
-    // 取得全部分類
     @GetMapping
-    public List<Category> getAllCategories() {
-        return categoryService.getAllCategories();
+    public List<CategoryDTO> getAll() {
+        return categoryService.getAll();
     }
 
-    // 取得單一分類
     @GetMapping("/{id}")
-    public Optional<Category> getCategoryById(@PathVariable Long id) {
-        return categoryService.getCategoryById(id);
+    public CategoryDTO getById(@PathVariable Long id) {
+        return categoryService.getById(id).orElse(null);
     }
 
-    // 新增分類
     @PostMapping
-    public Category createCategory(@RequestBody Category category) {
-        return categoryService.saveCategory(category);
+    public CategoryDTO create(@RequestBody CategoryDTO dto) {
+        return categoryService.save(dto);
     }
 
-    // 更新分類
     @PutMapping("/{id}")
-    public Category updateCategory(@PathVariable Long id, @RequestBody Category category) {
-        category.setCategoryId(id);
-        return categoryService.saveCategory(category);
+    public CategoryDTO update(@PathVariable Long id, @RequestBody CategoryDTO dto) {
+        dto.setCategoryId(id);
+        return categoryService.save(dto);
     }
 
-    // 刪除分類
     @DeleteMapping("/{id}")
-    public void deleteCategory(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
+    public void delete(@PathVariable Long id) {
+        categoryService.delete(id);
     }
 }

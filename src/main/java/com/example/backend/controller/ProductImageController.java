@@ -1,57 +1,56 @@
 package com.example.backend.controller;
 
-import com.example.backend.entity.ProductImage;
-import com.example.backend.service.ProductImageService;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Optional;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.backend.dto.ProductImageDTO;
+import com.example.backend.service.ProductImageService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/product-images")
-@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class ProductImageController {
 
-    private final ProductImageService productImageService;
+    private final ProductImageService imageService;
 
-    public ProductImageController(ProductImageService productImageService) {
-        this.productImageService = productImageService;
-    }
-
-    // 取得全部圖片
     @GetMapping
-    public List<ProductImage> getAllImages() {
-        return productImageService.getAllProductImages();
+    public List<ProductImageDTO> getAll() {
+        return imageService.getAll();
     }
 
-    // 取得單一圖片
     @GetMapping("/{id}")
-    public Optional<ProductImage> getImageById(@PathVariable Long id) {
-        return productImageService.getProductImageById(id);
+    public ProductImageDTO getById(@PathVariable Long id) {
+        return imageService.getById(id).orElse(null);
     }
 
-    // 取得某商品的所有圖片
     @GetMapping("/product/{productId}")
-    public List<ProductImage> getImagesByProductId(@PathVariable Long productId) {
-        return productImageService.getImagesByProductId(productId);
+    public List<ProductImageDTO> getByProduct(@PathVariable Long productId) {
+        return imageService.getByProduct(productId);
     }
 
-    // 新增圖片
     @PostMapping
-    public ProductImage createImage(@RequestBody ProductImage image) {
-        return productImageService.saveProductImage(image);
+    public ProductImageDTO create(@RequestBody ProductImageDTO dto) {
+        return imageService.save(dto);
     }
 
-    // 更新圖片
     @PutMapping("/{id}")
-    public ProductImage updateImage(@PathVariable Long id, @RequestBody ProductImage image) {
-        image.setImageId(id);
-        return productImageService.saveProductImage(image);
+    public ProductImageDTO update(@PathVariable Long id, @RequestBody ProductImageDTO dto) {
+        dto.setImageId(id);
+        return imageService.save(dto);
     }
 
-    // 刪除圖片
     @DeleteMapping("/{id}")
-    public void deleteImage(@PathVariable Long id) {
-        productImageService.deleteProductImage(id);
+    public void delete(@PathVariable Long id) {
+        imageService.delete(id);
     }
 }

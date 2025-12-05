@@ -1,43 +1,72 @@
 package com.example.backend.service;
 
-import com.example.backend.entity.Product;
-import com.example.backend.repository.ProductRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.example.backend.dto.ProductDTO;
+import com.example.backend.entity.Product;
+import com.example.backend.repository.ProductRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public ProductService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
+    // DTO → Entity
+    public Product toEntity(ProductDTO dto) {
+        return Product.builder()
+                .productId(dto.getProductId())
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .price(dto.getPrice())
+                .stock(dto.getStock())
+                .mainImage(dto.getMainImage())
+                .categoryId(dto.getCategoryId())
+                .build();
     }
 
-    // 查詢全部商品
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    // Entity → DTO
+    public ProductDTO toDTO(Product product) {
+        return ProductDTO.builder()
+                .productId(product.getProductId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .stock(product.getStock())
+                .mainImage(product.getMainImage())
+                .categoryId(product.getCategoryId())
+                .build();
     }
 
-    // 根據 ID 查詢商品
-    public Optional<Product> getProductById(Long id) {
-        return productRepository.findById(id);
+    // CRUD
+    public List<ProductDTO> getAll() {
+        return productRepository.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    // 根據分類查詢商品
-    public List<Product> getProductsByCategoryId(Long categoryId) {
-        return productRepository.findByCategoryId(categoryId);
+    public Optional<ProductDTO> getById(Long id) {
+        return productRepository.findById(id).map(this::toDTO);
     }
 
-    // 新增或更新商品
-    public Product saveProduct(Product product) {
-        return productRepository.save(product);
+    public List<ProductDTO> getByCategory(Long categoryId) {
+        return productRepository.findByCategoryId(categoryId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    // 刪除商品
-    public void deleteProduct(Long id) {
+    public ProductDTO save(ProductDTO dto) {
+        Product saved = productRepository.save(toEntity(dto));
+        return toDTO(saved);
+    }
+
+    public void delete(Long id) {
         productRepository.deleteById(id);
     }
 }

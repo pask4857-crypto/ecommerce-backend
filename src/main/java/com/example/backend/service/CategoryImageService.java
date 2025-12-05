@@ -1,43 +1,68 @@
 package com.example.backend.service;
 
-import com.example.backend.entity.CategoryImage;
-import com.example.backend.repository.CategoryImageRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.example.backend.dto.CategoryImageDTO;
+import com.example.backend.entity.CategoryImage;
+import com.example.backend.repository.CategoryImageRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryImageService {
 
     private final CategoryImageRepository categoryImageRepository;
 
-    public CategoryImageService(CategoryImageRepository categoryImageRepository) {
-        this.categoryImageRepository = categoryImageRepository;
+    // DTO → Entity
+    public CategoryImage toEntity(CategoryImageDTO dto) {
+        return CategoryImage.builder()
+                .imageId(dto.getImageId())
+                .categoryId(dto.getCategoryId())
+                .imageUrl(dto.getImageUrl())
+                .altText(dto.getAltText())
+                .sortOrder(dto.getSortOrder())
+                .build();
     }
 
-    // 查詢全部分類圖片
-    public List<CategoryImage> getAllCategoryImages() {
-        return categoryImageRepository.findAll();
+    // Entity → DTO
+    public CategoryImageDTO toDTO(CategoryImage img) {
+        return CategoryImageDTO.builder()
+                .imageId(img.getImageId())
+                .categoryId(img.getCategoryId())
+                .imageUrl(img.getImageUrl())
+                .altText(img.getAltText())
+                .sortOrder(img.getSortOrder())
+                .build();
     }
 
-    // 根據 ID 查詢
-    public Optional<CategoryImage> getCategoryImageById(Long id) {
-        return categoryImageRepository.findById(id);
+    // CRUD
+    public List<CategoryImageDTO> getAll() {
+        return categoryImageRepository.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    // 查詢某分類的所有圖片
-    public List<CategoryImage> getImagesByCategoryId(Long categoryId) {
-        return categoryImageRepository.findByCategoryId(categoryId);
+    public Optional<CategoryImageDTO> getById(Long id) {
+        return categoryImageRepository.findById(id).map(this::toDTO);
     }
 
-    // 新增或更新圖片
-    public CategoryImage saveCategoryImage(CategoryImage image) {
-        return categoryImageRepository.save(image);
+    public List<CategoryImageDTO> getByCategory(Long categoryId) {
+        return categoryImageRepository.findByCategoryId(categoryId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    // 刪除圖片
-    public void deleteCategoryImage(Long id) {
+    public CategoryImageDTO save(CategoryImageDTO dto) {
+        CategoryImage img = categoryImageRepository.save(toEntity(dto));
+        return toDTO(img);
+    }
+
+    public void delete(Long id) {
         categoryImageRepository.deleteById(id);
     }
 }

@@ -1,57 +1,56 @@
 package com.example.backend.controller;
 
-import com.example.backend.entity.CategoryImage;
-import com.example.backend.service.CategoryImageService;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Optional;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.backend.dto.CategoryImageDTO;
+import com.example.backend.service.CategoryImageService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/category-images")
-@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class CategoryImageController {
 
-    private final CategoryImageService categoryImageService;
+    private final CategoryImageService imageService;
 
-    public CategoryImageController(CategoryImageService categoryImageService) {
-        this.categoryImageService = categoryImageService;
-    }
-
-    // 取得全部圖片
     @GetMapping
-    public List<CategoryImage> getAllImages() {
-        return categoryImageService.getAllCategoryImages();
+    public List<CategoryImageDTO> getAll() {
+        return imageService.getAll();
     }
 
-    // 取得單一圖片
     @GetMapping("/{id}")
-    public Optional<CategoryImage> getImageById(@PathVariable Long id) {
-        return categoryImageService.getCategoryImageById(id);
+    public CategoryImageDTO getById(@PathVariable Long id) {
+        return imageService.getById(id).orElse(null);
     }
 
-    // 取得某分類的所有圖片
     @GetMapping("/category/{categoryId}")
-    public List<CategoryImage> getImagesByCategoryId(@PathVariable Long categoryId) {
-        return categoryImageService.getImagesByCategoryId(categoryId);
+    public List<CategoryImageDTO> getByCategory(@PathVariable Long categoryId) {
+        return imageService.getByCategory(categoryId);
     }
 
-    // 新增圖片
     @PostMapping
-    public CategoryImage createImage(@RequestBody CategoryImage image) {
-        return categoryImageService.saveCategoryImage(image);
+    public CategoryImageDTO create(@RequestBody CategoryImageDTO dto) {
+        return imageService.save(dto);
     }
 
-    // 更新圖片
     @PutMapping("/{id}")
-    public CategoryImage updateImage(@PathVariable Long id, @RequestBody CategoryImage image) {
-        image.setImageId(id);
-        return categoryImageService.saveCategoryImage(image);
+    public CategoryImageDTO update(@PathVariable Long id, @RequestBody CategoryImageDTO dto) {
+        dto.setImageId(id);
+        return imageService.save(dto);
     }
 
-    // 刪除圖片
     @DeleteMapping("/{id}")
-    public void deleteImage(@PathVariable Long id) {
-        categoryImageService.deleteCategoryImage(id);
+    public void delete(@PathVariable Long id) {
+        imageService.delete(id);
     }
 }
