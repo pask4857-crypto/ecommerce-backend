@@ -1,20 +1,12 @@
 package com.example.backend.controller;
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.example.backend.dto.ProductDTO;
+import com.example.backend.dto.ProductRequestDTO;
+import com.example.backend.dto.ProductResponseDTO;
 import com.example.backend.service.ProductService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -24,33 +16,27 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<ProductDTO> getAll() {
-        return productService.getAll();
+    public List<ProductResponseDTO> getAll() {
+        return productService.getAllProducts();
     }
 
     @GetMapping("/{id}")
-    public ProductDTO getById(@PathVariable Long id) {
-        return productService.getById(id).orElse(null);
-    }
-
-    @GetMapping("/category/{categoryId}")
-    public List<ProductDTO> getByCategory(@PathVariable Long categoryId) {
-        return productService.getByCategory(categoryId);
+    public ProductResponseDTO getById(@PathVariable Long id) {
+        return productService.getProductById(id);
     }
 
     @PostMapping
-    public ProductDTO create(@RequestBody ProductDTO dto) {
-        return productService.save(dto);
+    public ProductResponseDTO create(@RequestBody ProductRequestDTO dto) {
+        return productService.createProduct(dto);
     }
 
     @PutMapping("/{id}")
-    public ProductDTO update(@PathVariable Long id, @RequestBody ProductDTO dto) {
-        dto.setProductId(id);
-        return productService.save(dto);
+    public ProductResponseDTO update(@PathVariable Long id, @RequestBody ProductRequestDTO dto) {
+        return productService.updateProduct(id, dto);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        productService.delete(id);
+        productService.deleteProduct(id);
     }
 }

@@ -1,72 +1,61 @@
 package com.example.backend.service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import com.example.backend.dto.ProductRequestDTO;
+import com.example.backend.dto.ProductResponseDTO;
+import com.example.backend.entity.Product;
+import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.ProductMapper;
+import com.example.backend.repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.example.backend.dto.ProductDTO;
-import com.example.backend.entity.Product;
-import com.example.backend.repository.ProductRepository;
-
-import lombok.RequiredArgsConstructor;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-    // DTO → Entity
-    public Product toEntity(ProductDTO dto) {
-        return Product.builder()
-                .productId(dto.getProductId())
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .price(dto.getPrice())
-                .stock(dto.getStock())
-                .mainImage(dto.getMainImage())
-                .categoryId(dto.getCategoryId())
-                .build();
+    public List<ProductResponseDTO> getAllProducts() {
+        return productRepository.findAll()
+                .stream()
+                .map(productMapper::toDto)
+                .toList();
     }
 
-    // Entity → DTO
-    public ProductDTO toDTO(Product product) {
-        return ProductDTO.builder()
-                .productId(product.getProductId())
-                .name(product.getName())
-                .description(product.getDescription())
-                .price(product.getPrice())
-                .stock(product.getStock())
-                .mainImage(product.getMainImage())
-                .categoryId(product.getCategoryId())
-                .build();
+    public ProductResponseDTO getProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + id));
+        return productMapper.toDto(product);
     }
 
-    // CRUD
-    public List<ProductDTO> getAll() {
-        return productRepository.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public ProductResponseDTO createProduct(ProductRequestDTO dto) {
+        Product product = productMapper.toEntity(dto);
+
+        product.setSales(0);
+        product.setCreatedAt(LocalDateTime.now());
+        product.setUpdatedAt(LocalDateTime.now());
+
+        return productMapper.toDto(productRepository.save(product));
     }
 
-    public Optional<ProductDTO> getById(Long id) {
-        return productRepository.findById(id).map(this::toDTO);
+    public ProductResponseDTO updateProduct(Long id, ProductRequestDTO dto) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + id));
+
+        productMapper.updateEntityFromDto(dto, product);
+        product.setUpdatedAt(LocalDateTime.now());
+
+        return productMapper.toDto(productRepository.save(product));
     }
 
-    public List<ProductDTO> getByCategory(Long categoryId) {
-        return productRepository.findByCategoryId(categoryId).stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    public ProductDTO save(ProductDTO dto) {
-        Product saved = productRepository.save(toEntity(dto));
-        return toDTO(saved);
-    }
-
-    public void delete(Long id) {
+    public void deleteProduct(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Product not found: " + id);
+        }
         productRepository.deleteById(id);
     }
 }

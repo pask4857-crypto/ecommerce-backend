@@ -1,68 +1,54 @@
 package com.example.backend.service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import com.example.backend.dto.ProductImageRequestDTO;
+import com.example.backend.dto.ProductImageResponseDTO;
+import com.example.backend.entity.ProductImage;
+import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.mapper.ProductImageMapper;
+import com.example.backend.repository.ProductImageRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import com.example.backend.dto.ProductImageDTO;
-import com.example.backend.entity.ProductImage;
-import com.example.backend.repository.ProductImageRepository;
-
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ProductImageService {
 
     private final ProductImageRepository productImageRepository;
+    private final ProductImageMapper productImageMapper;
 
-    // DTO → Entity
-    public ProductImage toEntity(ProductImageDTO dto) {
-        return ProductImage.builder()
-                .imageId(dto.getImageId())
-                .productId(dto.getProductId())
-                .imageUrl(dto.getImageUrl())
-                .altText(dto.getAltText())
-                .sortOrder(dto.getSortOrder())
-                .build();
+    public List<ProductImageResponseDTO> getImagesByProduct(Long productId) {
+        return productImageRepository.findByProductId(productId)
+                .stream()
+                .map(productImageMapper::toDto)
+                .toList();
     }
 
-    // Entity → DTO
-    public ProductImageDTO toDTO(ProductImage img) {
-        return ProductImageDTO.builder()
-                .imageId(img.getImageId())
-                .productId(img.getProductId())
-                .imageUrl(img.getImageUrl())
-                .altText(img.getAltText())
-                .sortOrder(img.getSortOrder())
-                .build();
+    public ProductImageResponseDTO getById(Long id) {
+        ProductImage entity = productImageRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ProductImage not found: " + id));
+        return productImageMapper.toDto(entity);
     }
 
-    // CRUD
-    public List<ProductImageDTO> getAll() {
-        return productImageRepository.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+    public ProductImageResponseDTO create(ProductImageRequestDTO dto) {
+        ProductImage entity = productImageMapper.toEntity(dto);
+        return productImageMapper.toDto(productImageRepository.save(entity));
     }
 
-    public Optional<ProductImageDTO> getById(Long id) {
-        return productImageRepository.findById(id).map(this::toDTO);
-    }
+    public ProductImageResponseDTO update(Long id, ProductImageRequestDTO dto) {
+        ProductImage entity = productImageRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("ProductImage not found: " + id));
 
-    public List<ProductImageDTO> getByProduct(Long productId) {
-        return productImageRepository.findByProductId(productId).stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
+        productImageMapper.updateEntityFromDto(dto, entity);
 
-    public ProductImageDTO save(ProductImageDTO dto) {
-        ProductImage saved = productImageRepository.save(toEntity(dto));
-        return toDTO(saved);
+        return productImageMapper.toDto(productImageRepository.save(entity));
     }
 
     public void delete(Long id) {
+        if (!productImageRepository.existsById(id)) {
+            throw new ResourceNotFoundException("ProductImage not found: " + id);
+        }
         productImageRepository.deleteById(id);
     }
 }

@@ -1,56 +1,46 @@
 package com.example.backend.controller;
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.example.backend.dto.CategoryImageDTO;
+import com.example.backend.dto.CategoryImageRequestDTO;
+import com.example.backend.dto.CategoryImageResponseDTO;
 import com.example.backend.service.CategoryImageService;
+import org.springframework.web.bind.annotation.*;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/category-images")
-@RequiredArgsConstructor
 public class CategoryImageController {
 
-    private final CategoryImageService imageService;
+    private final CategoryImageService categoryImageService;
 
-    @GetMapping
-    public List<CategoryImageDTO> getAll() {
-        return imageService.getAll();
-    }
-
-    @GetMapping("/{id}")
-    public CategoryImageDTO getById(@PathVariable Long id) {
-        return imageService.getById(id).orElse(null);
-    }
-
-    @GetMapping("/category/{categoryId}")
-    public List<CategoryImageDTO> getByCategory(@PathVariable Long categoryId) {
-        return imageService.getByCategory(categoryId);
+    public CategoryImageController(CategoryImageService categoryImageService) {
+        this.categoryImageService = categoryImageService;
     }
 
     @PostMapping
-    public CategoryImageDTO create(@RequestBody CategoryImageDTO dto) {
-        return imageService.save(dto);
+    public CategoryImageResponseDTO create(@RequestBody CategoryImageRequestDTO dto) {
+        return categoryImageService.create(dto);
     }
 
     @PutMapping("/{id}")
-    public CategoryImageDTO update(@PathVariable Long id, @RequestBody CategoryImageDTO dto) {
-        dto.setImageId(id);
-        return imageService.save(dto);
+    public CategoryImageResponseDTO update(
+            @PathVariable Long id,
+            @RequestBody CategoryImageRequestDTO dto) {
+        return categoryImageService.update(id, dto);
+    }
+
+    @GetMapping("/{id}")
+    public CategoryImageResponseDTO getById(@PathVariable Long id) {
+        return categoryImageService.getById(id);
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public List<CategoryImageResponseDTO> getByCategory(@PathVariable Long categoryId) {
+        return categoryImageService.getByCategory(categoryId);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        imageService.delete(id);
+        categoryImageService.delete(id);
     }
 }

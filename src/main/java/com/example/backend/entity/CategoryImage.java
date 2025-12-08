@@ -15,12 +15,8 @@ public class CategoryImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "image_id")
     private Long imageId;
-
     private String imageUrl;
-
     private Long categoryId; // 分類ID
-
     private Integer sortOrder; // 顯示順序
-
     private String altText; // 圖片描述
 }

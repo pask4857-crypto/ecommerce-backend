@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface CategoryImageRepository extends JpaRepository<CategoryImage, Long> {
-    // 查詢某分類的所有圖片
+
     List<CategoryImage> findByCategoryId(Long categoryId);
 }

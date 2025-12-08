@@ -1,56 +1,43 @@
 package com.example.backend.controller;
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.example.backend.dto.ProductImageDTO;
+import com.example.backend.dto.ProductImageRequestDTO;
+import com.example.backend.dto.ProductImageResponseDTO;
 import com.example.backend.service.ProductImageService;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/product-images")
 @RequiredArgsConstructor
 public class ProductImageController {
 
-    private final ProductImageService imageService;
+    private final ProductImageService productImageService;
 
-    @GetMapping
-    public List<ProductImageDTO> getAll() {
-        return imageService.getAll();
+    // 查詢某商品全部圖片
+    @GetMapping("/product/{productId}")
+    public List<ProductImageResponseDTO> getByProduct(@PathVariable Long productId) {
+        return productImageService.getImagesByProduct(productId);
     }
 
     @GetMapping("/{id}")
-    public ProductImageDTO getById(@PathVariable Long id) {
-        return imageService.getById(id).orElse(null);
-    }
-
-    @GetMapping("/product/{productId}")
-    public List<ProductImageDTO> getByProduct(@PathVariable Long productId) {
-        return imageService.getByProduct(productId);
+    public ProductImageResponseDTO getById(@PathVariable Long id) {
+        return productImageService.getById(id);
     }
 
     @PostMapping
-    public ProductImageDTO create(@RequestBody ProductImageDTO dto) {
-        return imageService.save(dto);
+    public ProductImageResponseDTO create(@RequestBody ProductImageRequestDTO dto) {
+        return productImageService.create(dto);
     }
 
     @PutMapping("/{id}")
-    public ProductImageDTO update(@PathVariable Long id, @RequestBody ProductImageDTO dto) {
-        dto.setImageId(id);
-        return imageService.save(dto);
+    public ProductImageResponseDTO update(@PathVariable Long id, @RequestBody ProductImageRequestDTO dto) {
+        return productImageService.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        imageService.delete(id);
+        productImageService.delete(id);
     }
 }
