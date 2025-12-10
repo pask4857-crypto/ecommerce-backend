@@ -6,17 +6,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "categories")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+
 public class Category {
 
     @Id
@@ -28,4 +28,12 @@ public class Category {
     private String description; // 分類描述
     private Boolean isActive; // 上架/下架狀態
     private Integer sortOrder; // 顯示排序
+
+    public Category(String name, String mainImage, String description, Boolean isActive, Integer sortOrder) {
+        this.name = name;
+        this.mainImage = mainImage;
+        this.description = description;
+        this.isActive = isActive;
+        this.sortOrder = sortOrder;
+    }
 }

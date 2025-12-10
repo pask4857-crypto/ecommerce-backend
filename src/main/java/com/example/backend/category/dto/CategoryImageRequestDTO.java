@@ -1,8 +1,17 @@
 package com.example.backend.category.dto;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+
 public class CategoryImageRequestDTO {
     private String imageUrl;
     private Long categoryId;

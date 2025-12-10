@@ -1,9 +1,19 @@
 package com.example.backend.product.dto;
 
-import lombok.Data;
 import java.time.LocalDateTime;
 
-@Data
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+
 public class ProductResponseDTO {
     private Long productId;
     private String name;

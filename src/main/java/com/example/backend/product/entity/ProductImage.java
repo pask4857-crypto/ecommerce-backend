@@ -6,17 +6,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "product_images")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+
 public class ProductImage {
 
     @Id
@@ -27,4 +27,11 @@ public class ProductImage {
     private Long productId; // 商品ID
     private Integer sortOrder; // 顯示順序
     private String altText; // 圖片描述
+
+    public ProductImage(String imageUrl, Long productId, Integer sortOrder, String altText) {
+        this.imageUrl = imageUrl;
+        this.productId = productId;
+        this.sortOrder = sortOrder;
+        this.altText = altText;
+    }
 }

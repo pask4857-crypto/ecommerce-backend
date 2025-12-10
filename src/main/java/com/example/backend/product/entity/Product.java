@@ -8,17 +8,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "products")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+
 public class Product {
 
     @Id
@@ -39,4 +39,23 @@ public class Product {
     private Integer sales; // 銷售量
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public Product(String name, String description, String sku, Double price, Double discountPrice, Integer stock,
+            Integer stockWarning, Double weight, Boolean isActive, Long categoryId, String mainImage, Integer sales,
+            LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.name = name;
+        this.description = description;
+        this.sku = sku;
+        this.price = price;
+        this.discountPrice = discountPrice;
+        this.stock = stock;
+        this.stockWarning = stockWarning;
+        this.weight = weight;
+        this.isActive = isActive;
+        this.categoryId = categoryId;
+        this.mainImage = mainImage;
+        this.sales = sales;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 }

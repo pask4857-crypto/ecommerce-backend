@@ -1,10 +1,19 @@
 package com.example.backend.cart.dto;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
 
-@Data
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+
 public class CartCouponResponseDTO {
 
     private Long couponUseId;
