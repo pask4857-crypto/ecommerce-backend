@@ -1,4 +1,6 @@
-package com.example.backend.category.entity;
+package com.example.backend.cart.entity;
+
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,20 +14,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "cart_coupons")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Category {
+public class CartCoupon {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "category_id")
-    private Long categoryId;
-    private String name;
-    private String mainImage;
-    private String description; // 分類描述
-    private Boolean isActive; // 上架/下架狀態
-    private Integer sortOrder; // 顯示排序
+    @Column(name = "coupon_use_id")
+    private Long couponUseId;
+
+    private Long cartId;
+    private String couponCode;
+
+    private Integer discountAmount; // 折抵金額
+    private Integer minSpend; // 最低消費
+
+    private Boolean isActive;
+
+    private LocalDateTime appliedAt;
 }
