@@ -1,10 +1,12 @@
 package com.example.backend.cart.repository;
 
-import com.example.backend.cart.entity.Cart;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
+
+import com.example.backend.cart.entity.Cart;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
 
-    List<Cart> findByUserId(Long userId);
+    Optional<Cart> findByUserId(Long userId);
 }

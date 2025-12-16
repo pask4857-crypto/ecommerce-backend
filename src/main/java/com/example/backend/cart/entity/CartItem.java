@@ -15,25 +15,49 @@ import lombok.Setter;
 @Table(name = "cart_items")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-
+@NoArgsConstructor // (access = AccessLevel.PROTECTED)
 public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "cart_item_id")
     private Long cartItemId;
-    private Long cartId; // 所屬購物車 ID（後續可改 ManyToOne）
-    private Long productId; // 商品 ID
-    private Integer quantity; // 數量
-    private Integer unitPrice; // 商品單價（加入購物車當下的價格）
-    private Integer totalPrice; // 小計（unitPrice * quantity）
 
-    public CartItem(Long cartId, Long productId, Integer quantity, Integer unitPrice, Integer totalPrice) {
-        this.cartId = cartId;
-        this.productId = productId;
+    private Long cartId;
+    private Long productId;
+
+    private Integer quantity;
+    private Integer unitPrice;
+    private Integer totalPrice;
+
+    /*
+     * ======================
+     * Factory Method
+     * ======================
+     */
+
+    public static CartItem create(
+            Long cartId,
+            Long productId,
+            Integer quantity,
+            Integer unitPrice) {
+        CartItem item = new CartItem();
+        item.cartId = cartId;
+        item.productId = productId;
+        item.quantity = quantity;
+        item.unitPrice = unitPrice;
+        item.totalPrice = unitPrice * quantity;
+        return item;
+    }
+
+    /*
+     * ======================
+     * Domain Behavior（可選）
+     * ======================
+     */
+
+    public void changeQuantity(Integer quantity) {
         this.quantity = quantity;
-        this.unitPrice = unitPrice;
-        this.totalPrice = totalPrice;
+        this.totalPrice = this.unitPrice * quantity;
     }
 }
