@@ -15,6 +15,7 @@ import com.example.backend.order.entity.Order;
 import com.example.backend.order.entity.OrderItem;
 import com.example.backend.order.repository.OrderItemRepository;
 import com.example.backend.order.repository.OrderRepository;
+import com.example.backend.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +28,8 @@ public class OrderService {
 
         private final CartRepository cartRepository;
         private final CartItemRepository cartItemRepository;
+
+        private final UserService userService;
 
         /*
          * ======================
@@ -70,6 +73,8 @@ public class OrderService {
          */
         @Transactional
         public OrderResponseDTO createOrderFromCart(Long userId, String paymentMethod) {
+
+                userService.validateUserIsActive(userId);
 
                 // 1️⃣ 取得購物車
                 Cart cart = cartRepository.findByUserId(userId)

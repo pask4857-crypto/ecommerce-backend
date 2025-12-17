@@ -15,6 +15,10 @@ import com.example.backend.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Common validation for user existence and active status.
+ */
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -60,8 +64,8 @@ public class UserService {
     }
 
     public UserResponseDTO updateUser(Long id, UserRequestDTO dto) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+
+        User user = getActiveUserOrThrow(id);
 
         user.setUsername(dto.getUsername());
         user.setPhone(dto.getPhone());
@@ -90,8 +94,7 @@ public class UserService {
 
     public void changePassword(Long userId, ChangePasswordRequestDTO dto) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
+        User user = getActiveUserOrThrow(userId);
 
         // 1️⃣ 檢查新密碼與確認密碼
         if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
@@ -110,6 +113,37 @@ public class UserService {
 
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
+    }
+    /*
+     * =========================
+     * 對外公開 API（給其他模組）
+     * =========================
+     */
+
+    /** 用於跨模組驗證帳號狀態 */
+    public User requireActiveUser(Long userId) {
+        return getActiveUserOrThrow(userId);
+    }
+
+    /** 只驗證，不回傳實體（更安全） */
+    public void validateUserIsActive(Long userId) {
+        getActiveUserOrThrow(userId);
+    }
+
+    /*
+     * =========================
+     * 內部共用邏輯
+     * =========================
+     */
+    private User getActiveUserOrThrow(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
+
+        if (!Boolean.TRUE.equals(user.getIsActive())) {
+            throw new IllegalStateException("User account is deactivated.");
+        }
+
+        return user;
     }
 
 }

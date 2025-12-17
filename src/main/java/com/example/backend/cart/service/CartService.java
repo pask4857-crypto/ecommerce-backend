@@ -6,6 +6,7 @@ import com.example.backend.cart.dto.CartResponseDTO;
 import com.example.backend.cart.entity.Cart;
 import com.example.backend.cart.repository.CartRepository;
 import com.example.backend.common.exception.ResourceNotFoundException;
+import com.example.backend.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +16,12 @@ public class CartService {
 
     private final CartRepository cartRepository;
 
+    private final UserService userService;
+
     public CartResponseDTO getCartByUserId(Long userId) {
+
+        userService.validateUserIsActive(userId);
+
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user: " + userId));
         return new CartResponseDTO(cart.getCartId(), cart.getUserId());
