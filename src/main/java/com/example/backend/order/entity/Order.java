@@ -8,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,7 +16,7 @@ import lombok.Setter;
 @Table(name = "orders")
 @Getter
 @Setter
-@NoArgsConstructor // (access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Order {
 
     @Id
@@ -29,16 +28,12 @@ public class Order {
     private Integer totalAmount;
     private Integer discountAmount;
     private Integer finalAmount;
-    private String status; // Ex: PENDING, PAID, SHIPPED, COMPLETED, CANCELLED
+    private String status;
     private String paymentMethod;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static Order createFromCart(
-            Long userId,
-            int totalAmount,
-            int discountAmount,
-            String paymentMethod) {
+    public static Order createFromCart(Long userId, int totalAmount, int discountAmount, String paymentMethod) {
         Order order = new Order();
         order.userId = userId;
         order.totalAmount = totalAmount;

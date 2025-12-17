@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.order.dto.OrderResponseDTO;
@@ -20,27 +21,23 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    /**
-     * 查詢全部訂單（管理 / 測試用）
-     */
     @GetMapping
-    public List<OrderResponseDTO> getAll() {
+    public List<OrderResponseDTO> getAllOrders() {
         return orderService.getAllOrders();
     }
 
-    /**
-     * 查詢單一訂單
-     */
-    @GetMapping("/{id}")
-    public OrderResponseDTO getById(@PathVariable Long id) {
-        return orderService.getOrderById(id);
+    @GetMapping("/{orderId}")
+    public OrderResponseDTO getOrderById(@PathVariable Long orderId) {
+        return orderService.getOrderById(orderId);
     }
 
     /**
-     * 使用購物車正式下單
+     * 正式下單流程
      */
-    @PostMapping("/from-cart/{userId}")
-    public OrderResponseDTO createFromCart(@PathVariable Long userId) {
-        return orderService.createOrderFromCart(userId);
+    @PostMapping("/user/{userId}")
+    public OrderResponseDTO createOrderFromCart(
+            @PathVariable Long userId,
+            @RequestParam String paymentMethod) {
+        return orderService.createOrderFromCart(userId, paymentMethod);
     }
 }

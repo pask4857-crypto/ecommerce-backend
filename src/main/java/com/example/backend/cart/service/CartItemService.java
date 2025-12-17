@@ -1,64 +1,56 @@
 package com.example.backend.cart.service;
 
-import com.example.backend.cart.dto.CartItemRequestDTO;
-import com.example.backend.cart.dto.CartItemResponseDTO;
-import com.example.backend.cart.entity.CartItem;
-import com.example.backend.cart.mapper.CartItemMapper;
-import com.example.backend.cart.repository.CartItemRepository;
-import com.example.backend.common.exception.ResourceNotFoundException;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.example.backend.cart.dto.CartItemResponseDTO;
+import com.example.backend.cart.entity.CartItem;
+import com.example.backend.cart.repository.CartItemRepository;
+import com.example.backend.cart.repository.CartRepository;
+import com.example.backend.common.exception.ResourceNotFoundException;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class CartItemService {
 
     private final CartItemRepository cartItemRepository;
-    private final CartItemMapper cartItemMapper;
+    private final CartRepository cartRepository;
 
-    public CartItemService(
-            CartItemRepository cartItemRepository,
-            CartItemMapper cartItemMapper) {
-        this.cartItemRepository = cartItemRepository;
-        this.cartItemMapper = cartItemMapper;
+    public List<CartItemResponseDTO> getItemsByCartId(Long cartId) {
+        List<CartItem> items = cartItemRepository.findByCartId(cartId);
+        return items.stream()
+                .map(item -> new CartItemResponseDTO(
+                        item.getCartItemId(),
+                        item.getCartId(),
+                        item.getProductId(),
+                        item.getQuantity(),
+                        item.getUnitPrice(),
+                        item.getTotalPrice()))
+                .toList();
     }
 
-    public CartItemResponseDTO create(CartItemRequestDTO dto) {
-        CartItem entity = cartItemMapper.toEntity(dto);
-        CartItem saved = cartItemRepository.save(entity);
-        return cartItemMapper.toResponseDTO(saved);
-    }
-
-    public CartItemResponseDTO update(Long id, CartItemRequestDTO dto) {
-        CartItem entity = cartItemRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("CartItem not found with id: " + id));
-
-        entity.setQuantity(dto.getQuantity());
-        entity.setUnitPrice(dto.getUnitPrice());
-        entity.setTotalPrice(dto.getUnitPrice() * dto.getQuantity());
-
-        CartItem saved = cartItemRepository.save(entity);
-        return cartItemMapper.toResponseDTO(saved);
-    }
-
-    public CartItemResponseDTO getById(Long id) {
-        CartItem entity = cartItemRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("CartItem not found with id: " + id));
-        return cartItemMapper.toResponseDTO(entity);
-    }
-
-    public List<CartItemResponseDTO> getByCart(Long cartId) {
-        return cartItemRepository.findByCartId(cartId)
-                .stream()
-                .map(cartItemMapper::toResponseDTO)
-                .collect(Collectors.toList());
-    }
-
-    public void delete(Long id) {
-        if (!cartItemRepository.existsById(id)) {
-            throw new ResourceNotFoundException("CartItem not found with id: " + id);
+    public CartItemResponseDTO addCartItem(Long cartId, Long productId, Integer quantity, Integer unitPrice) {
+        if (!cartRepository.existsById(cartId)) {
+            throw new ResourceNotFoundException("Cart not found: " + cartId);
         }
-        cartItemRepository.deleteById(id);
+        CartItem item = CartItem.create(cartId, productId, quantity, unitPrice);
+        CartItem saved = cartItemRepository.save(item);
+        return new CartItemResponseDTO(saved.getCartItemId(), cartId, productId, quantity, unitPrice,
+                saved.getTotalPrice());
+    }
+
+    public void deleteCartItem(Long cartItemId) {
+        if (!cartItemRepository.existsById(cartItemId)) {
+            throw new ResourceNotFoundException("CartItem not found: " + cartItemId);
+        }
+        cartItemRepository.deleteById(cartItemId);
+    }
+
+    public void clearCart(Long cartId) {
+        List<CartItem> items = cartItemRepository.findByCartId(cartId);
+        cartItemRepository.deleteAll(items);
     }
 }

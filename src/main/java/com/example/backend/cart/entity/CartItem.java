@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,7 +14,7 @@ import lombok.Setter;
 @Table(name = "cart_items")
 @Getter
 @Setter
-@NoArgsConstructor // (access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class CartItem {
 
     @Id
@@ -25,39 +24,17 @@ public class CartItem {
 
     private Long cartId;
     private Long productId;
-
     private Integer quantity;
-    private Integer unitPrice;
-    private Integer totalPrice;
+    private Integer unitPrice; // 下單當下商品單價
+    private Integer totalPrice; // unitPrice * quantity
 
-    /*
-     * ======================
-     * Factory Method
-     * ======================
-     */
-
-    public static CartItem create(
-            Long cartId,
-            Long productId,
-            Integer quantity,
-            Integer unitPrice) {
+    public static CartItem create(Long cartId, Long productId, Integer quantity, Integer unitPrice) {
         CartItem item = new CartItem();
         item.cartId = cartId;
         item.productId = productId;
         item.quantity = quantity;
         item.unitPrice = unitPrice;
-        item.totalPrice = unitPrice * quantity;
+        item.totalPrice = quantity * unitPrice;
         return item;
-    }
-
-    /*
-     * ======================
-     * Domain Behavior（可選）
-     * ======================
-     */
-
-    public void changeQuantity(Integer quantity) {
-        this.quantity = quantity;
-        this.totalPrice = this.unitPrice * quantity;
     }
 }

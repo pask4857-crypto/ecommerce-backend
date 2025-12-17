@@ -2,8 +2,10 @@ package com.example.backend.user.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.backend.user.dto.ChangePasswordRequestDTO;
 import com.example.backend.user.dto.UserRequestDTO;
 import com.example.backend.user.dto.UserResponseDTO;
 import com.example.backend.user.service.UserService;
@@ -37,8 +39,24 @@ public class UserController {
         return userService.updateUser(id, dto);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        userService.deleteUser(id);
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<Void> deactivateUser(@PathVariable Long id) {
+        userService.deactivateUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<Void> activateUser(@PathVariable Long id) {
+        userService.activateUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/password")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable Long id,
+            @RequestBody ChangePasswordRequestDTO dto) {
+
+        userService.changePassword(id, dto);
+        return ResponseEntity.noContent().build();
     }
 }

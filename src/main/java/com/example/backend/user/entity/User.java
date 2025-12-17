@@ -8,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,43 +16,29 @@ import lombok.Setter;
 @Table(name = "users")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
-
     private String username;
-
     private String email;
-
     private String passwordHash;
-
     private String phone;
-
     private Boolean isActive;
-
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
 
-    public User(
-            String username,
-            String email,
-            String passwordHash,
-            String phone,
-            Boolean isActive,
-            LocalDateTime createdAt,
-            LocalDateTime updatedAt) {
-
-        this.username = username;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.phone = phone;
-        this.isActive = isActive;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+    public static User create(String username, String email, String passwordHash, String phone) {
+        User user = new User();
+        user.username = username;
+        user.email = email;
+        user.passwordHash = passwordHash;
+        user.phone = phone;
+        user.isActive = true;
+        user.createdAt = LocalDateTime.now();
+        user.updatedAt = LocalDateTime.now();
+        return user;
     }
 }
