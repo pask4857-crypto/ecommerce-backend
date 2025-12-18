@@ -1,5 +1,7 @@
 package com.example.backend.order.dto;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +16,6 @@ public class OrderItemRequestDTO {
     private Long productId;
     private String productName;
     private Integer quantity;
-    private Double price;
-    private Double subtotal;
+    private BigDecimal price;
+    private BigDecimal subtotal;
 }

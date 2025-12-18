@@ -1,5 +1,6 @@
 package com.example.backend.cart.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -27,12 +28,12 @@ public class CartCoupon {
     private Long couponUseId;
     private Long cartId;
     private String couponCode;
-    private Integer discountAmount; // 折抵金額
-    private Integer minSpend; // 最低消費
+    private BigDecimal discountAmount; // 折抵金額
+    private BigDecimal minSpend; // 最低消費
     private Boolean isActive;
     private LocalDateTime appliedAt;
 
-    public CartCoupon(Long cartId, String couponCode, Integer discountAmount, Integer minSpend, Boolean isActive,
+    public CartCoupon(Long cartId, String couponCode, BigDecimal discountAmount, BigDecimal minSpend, Boolean isActive,
             LocalDateTime appliedAt) {
         this.cartId = cartId;
         this.couponCode = couponCode;

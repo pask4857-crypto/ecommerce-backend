@@ -1,5 +1,7 @@
 package com.example.backend.cart.dto;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,6 @@ public class CartCouponRequestDTO {
 
     private Long cartId;
     private String couponCode;
-    private Integer discountAmount;
-    private Integer minSpend;
+    private BigDecimal discountAmount;
+    private BigDecimal minSpend;
 }
