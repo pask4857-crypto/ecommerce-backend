@@ -1,5 +1,7 @@
 package com.example.backend.order.entity;
 
+import java.math.BigDecimal;
+
 import com.example.backend.cart.entity.CartItem;
 
 import jakarta.persistence.Column;
@@ -8,43 +10,66 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "order_items")
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_item_id")
     private Long orderItemId;
 
     private Long orderId;
     private Long productId;
     private String productName;
-    private Integer quantity;
-    private Integer price; // 單價
-    private Integer subtotal; // price * quantity
 
+    private Integer quantity;
+
+    @Column(precision = 19, scale = 2)
+    private BigDecimal price; // 下單當下單價
+
+    @Column(precision = 19, scale = 2)
+    private BigDecimal subtotal; // price * quantity
+
+    /*
+     * =================
+     * Factory Method
+     * =================
+     */
     public static OrderItem fromCartItem(
             Long orderId,
             CartItem cartItem,
             String productName) {
-        return OrderItem.builder()
-                .orderId(orderId)
-                .productId(cartItem.getProductId())
-                .productName(productName)
-                .quantity(cartItem.getQuantity())
-                .price(cartItem.getUnitPrice())
-                .subtotal(cartItem.getTotalPrice())
-                .build();
+        if (orderId == null) {
+            throw new IllegalArgumentException("orderId must not be null");
+        }
+        if (cartItem == null) {
+            throw new IllegalArgumentException("cartItem must not be null");
+        }
+
+        OrderItem item = new OrderItem();
+        item.orderId = orderId;
+        item.productId = cartItem.getProductId();
+        item.productName = productName;
+        item.quantity = cartItem.getQuantity();
+        item.price = cartItem.getUnitPrice();
+        item.calculateSubtotal();
+
+        return item;
+    }
+
+    /*
+     * =================
+     * Internal Logic
+     * =================
+     */
+    private void calculateSubtotal() {
+        this.subtotal = price.multiply(BigDecimal.valueOf(quantity));
     }
 }

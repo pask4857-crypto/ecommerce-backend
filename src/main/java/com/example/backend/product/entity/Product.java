@@ -1,5 +1,6 @@
 package com.example.backend.product.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -18,44 +19,92 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private Long productId;
+
     private String name;
     private String description;
-    private String sku; // 商品編號
-    private Double price;
-    private Double discountPrice; // 折扣價
+    private String sku;
+
+    // 💰 金額統一 BigDecimal
+    private BigDecimal price;
+    private BigDecimal discountPrice;
+
     private Integer stock;
-    private Integer stockWarning; // 庫存警示值
-    private Double weight; // 商品重量
-    private Boolean isActive; // 上架/下架狀態
-    private Long categoryId; // 分類ID
+    private Integer stockWarning;
+    private Double weight;
+
+    private Boolean isActive;
+    private Long categoryId;
     private String mainImage;
-    private Integer sales; // 銷售量
+
+    private Integer sales;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public Product(String name, String description, String sku, Double price, Double discountPrice, Integer stock,
-            Integer stockWarning, Double weight, Boolean isActive, Long categoryId, String mainImage, Integer sales,
-            LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.name = name;
-        this.description = description;
-        this.sku = sku;
-        this.price = price;
-        this.discountPrice = discountPrice;
-        this.stock = stock;
-        this.stockWarning = stockWarning;
-        this.weight = weight;
-        this.isActive = isActive;
-        this.categoryId = categoryId;
-        this.mainImage = mainImage;
-        this.sales = sales;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+    /*
+     * ==========
+     * Factory
+     * ==========
+     */
+    public static Product create(
+            String name,
+            String description,
+            String sku,
+            BigDecimal price,
+            BigDecimal discountPrice,
+            Integer stock,
+            Integer stockWarning,
+            Double weight,
+            Long categoryId,
+            String mainImage) {
+        Product product = new Product();
+        product.name = name;
+        product.description = description;
+        product.sku = sku;
+        product.price = price;
+        product.discountPrice = discountPrice;
+        product.stock = stock;
+        product.stockWarning = stockWarning;
+        product.weight = weight;
+        product.categoryId = categoryId;
+        product.mainImage = mainImage;
+
+        product.isActive = true;
+        product.sales = 0;
+        product.createdAt = LocalDateTime.now();
+        product.updatedAt = LocalDateTime.now();
+
+        return product;
+    }
+
+    /*
+     * ==========
+     * 行為方法
+     * ==========
+     */
+    public void deactivate() {
+        this.isActive = false;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void activate() {
+        this.isActive = true;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void increaseSales(int quantity) {
+        this.sales += quantity;
+    }
+
+    public void decreaseStock(int quantity) {
+        if (this.stock < quantity) {
+            throw new IllegalStateException("Insufficient stock");
+        }
+        this.stock -= quantity;
     }
 }

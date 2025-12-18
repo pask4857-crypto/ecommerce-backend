@@ -16,22 +16,57 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
 public class ProductImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "image_id")
     private Long imageId;
-    private String imageUrl;
-    private Long productId; // 商品ID
-    private Integer sortOrder; // 顯示順序
-    private String altText; // 圖片描述
 
-    public ProductImage(String imageUrl, Long productId, Integer sortOrder, String altText) {
-        this.imageUrl = imageUrl;
-        this.productId = productId;
+    private String imageUrl;
+    private Long productId;
+    private Integer sortOrder;
+    private String altText;
+
+    /*
+     * ==========
+     * Factory
+     * ==========
+     */
+    public static ProductImage create(
+            Long productId,
+            String imageUrl,
+            Integer sortOrder,
+            String altText) {
+        if (productId == null) {
+            throw new IllegalArgumentException("productId must not be null");
+        }
+        if (imageUrl == null || imageUrl.isBlank()) {
+            throw new IllegalArgumentException("imageUrl must not be blank");
+        }
+
+        ProductImage image = new ProductImage();
+        image.productId = productId;
+        image.imageUrl = imageUrl;
+        image.sortOrder = sortOrder != null ? sortOrder : 0;
+        image.altText = altText;
+
+        return image;
+    }
+
+    /*
+     * ==========
+     * 行為方法
+     * ==========
+     */
+    public void changeSortOrder(int sortOrder) {
+        if (sortOrder < 0) {
+            throw new IllegalArgumentException("sortOrder must be >= 0");
+        }
         this.sortOrder = sortOrder;
+    }
+
+    public void changeAltText(String altText) {
         this.altText = altText;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.backend.order.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -100,15 +101,22 @@ public class OrderService {
                         throw new IllegalStateException("Cannot create order: cart is empty");
                 }
 
-                int totalAmount = cartItems.stream()
-                                .mapToInt(CartItem::getTotalPrice)
-                                .sum();
+                // 💰 計算總金額（BigDecimal）
+                BigDecimal totalAmount = cartItems.stream()
+                                .map(CartItem::getTotalPrice)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                int discountAmount = 0;
+                BigDecimal discountAmount = BigDecimal.ZERO;
 
-                Order order = Order.createFromCart(userId, totalAmount, discountAmount, paymentMethod);
+                // 建立訂單
+                Order order = Order.createFromCart(
+                                userId,
+                                totalAmount,
+                                discountAmount,
+                                paymentMethod);
                 orderRepository.save(order);
 
+                // 建立 OrderItem 快照
                 for (CartItem cartItem : cartItems) {
 
                         Product product = productRepository.findById(cartItem.getProductId())
@@ -118,12 +126,12 @@ public class OrderService {
                         OrderItem orderItem = OrderItem.fromCartItem(
                                         order.getOrderId(),
                                         cartItem,
-                                        product.getName() // 商品名稱快照
-                        );
+                                        product.getName());
 
                         orderItemRepository.save(orderItem);
                 }
 
+                // 清空購物車
                 cartItemRepository.deleteAll(cartItems);
 
                 return getOrderById(userId, order.getOrderId());

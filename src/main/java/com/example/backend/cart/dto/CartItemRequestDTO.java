@@ -1,5 +1,7 @@
 package com.example.backend.cart.dto;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,5 +15,5 @@ public class CartItemRequestDTO {
     private Long cartId;
     private Long productId;
     private Integer quantity;
-    private Integer unitPrice;
+    private BigDecimal unitPrice;
 }

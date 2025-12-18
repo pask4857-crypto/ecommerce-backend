@@ -1,5 +1,6 @@
 package com.example.backend.cart.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -20,8 +21,7 @@ public class CartItemService {
     private final CartRepository cartRepository;
 
     public List<CartItemResponseDTO> getItemsByCartId(Long cartId) {
-        List<CartItem> items = cartItemRepository.findByCartId(cartId);
-        return items.stream()
+        return cartItemRepository.findByCartId(cartId).stream()
                 .map(item -> new CartItemResponseDTO(
                         item.getCartItemId(),
                         item.getCartId(),
@@ -32,13 +32,25 @@ public class CartItemService {
                 .toList();
     }
 
-    public CartItemResponseDTO addCartItem(Long cartId, Long productId, Integer quantity, Integer unitPrice) {
+    public CartItemResponseDTO addCartItem(
+            Long cartId,
+            Long productId,
+            Integer quantity,
+            BigDecimal unitPrice) {
+
         if (!cartRepository.existsById(cartId)) {
             throw new ResourceNotFoundException("Cart not found: " + cartId);
         }
+
         CartItem item = CartItem.create(cartId, productId, quantity, unitPrice);
         CartItem saved = cartItemRepository.save(item);
-        return new CartItemResponseDTO(saved.getCartItemId(), cartId, productId, quantity, unitPrice,
+
+        return new CartItemResponseDTO(
+                saved.getCartItemId(),
+                saved.getCartId(),
+                saved.getProductId(),
+                saved.getQuantity(),
+                saved.getUnitPrice(),
                 saved.getTotalPrice());
     }
 
@@ -50,7 +62,7 @@ public class CartItemService {
     }
 
     public void clearCart(Long cartId) {
-        List<CartItem> items = cartItemRepository.findByCartId(cartId);
-        cartItemRepository.deleteAll(items);
+        cartItemRepository.deleteAll(
+                cartItemRepository.findByCartId(cartId));
     }
 }

@@ -1,5 +1,6 @@
 package com.example.backend.order.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
@@ -12,11 +13,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderResponseDTO {
+
     private Long orderId;
     private Long userId;
-    private Integer totalAmount;
-    private Integer discountAmount;
-    private Integer finalAmount;
+
+    private BigDecimal totalAmount;
+    private BigDecimal discountAmount;
+    private BigDecimal finalAmount;
+
     private String status;
     private String paymentMethod;
     private LocalDateTime createdAt;
