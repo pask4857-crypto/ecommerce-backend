@@ -2,7 +2,7 @@ package com.example.backend.order.entity;
 
 import java.math.BigDecimal;
 
-import com.example.backend.cart.entity.CartItem;
+import com.example.backend.order.dto.OrderItemSnapshotDTO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,10 +13,12 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "order_items")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem {
 
@@ -42,23 +44,20 @@ public class OrderItem {
      * Factory Method
      * =================
      */
-    public static OrderItem fromCartItem(
-            Long orderId,
-            CartItem cartItem,
-            String productName) {
+    public static OrderItem fromSnapshot(Long orderId, OrderItemSnapshotDTO snapshot) {
         if (orderId == null) {
             throw new IllegalArgumentException("orderId must not be null");
         }
-        if (cartItem == null) {
-            throw new IllegalArgumentException("cartItem must not be null");
+        if (snapshot == null) {
+            throw new IllegalArgumentException("snapshot must not be null");
         }
 
         OrderItem item = new OrderItem();
-        item.orderId = orderId;
-        item.productId = cartItem.getProductId();
-        item.productName = productName;
-        item.quantity = cartItem.getQuantity();
-        item.price = cartItem.getUnitPrice();
+        item.setOrderId(orderId);
+        item.setProductId(snapshot.getProductId());
+        item.setProductName(snapshot.getProductName());
+        item.setQuantity(snapshot.getQuantity());
+        item.setPrice(snapshot.getPrice());
         item.calculateSubtotal();
 
         return item;
@@ -69,7 +68,11 @@ public class OrderItem {
      * Internal Logic
      * =================
      */
-    private void calculateSubtotal() {
-        this.subtotal = price.multiply(BigDecimal.valueOf(quantity));
+    public void calculateSubtotal() {
+        if (price == null || quantity == null) {
+            this.subtotal = BigDecimal.ZERO;
+        } else {
+            this.subtotal = price.multiply(BigDecimal.valueOf(quantity));
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.example.backend.order.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,4 +26,7 @@ public class OrderResponseDTO {
     private String paymentMethod;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private List<OrderItemSnapshotDTO> items;
+
 }

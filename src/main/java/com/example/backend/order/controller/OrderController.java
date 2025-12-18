@@ -21,10 +21,10 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @GetMapping
-    public List<OrderResponseDTO> getAllOrders() {
-        return orderService.getAllOrders();
-    }
+    // @GetMapping
+    // public List<OrderResponseDTO> getAllOrders() {
+    // return orderService.getAllOrders();
+    // }
 
     @GetMapping("/{orderId}")
     public OrderResponseDTO getOrderById(
