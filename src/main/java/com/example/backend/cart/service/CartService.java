@@ -28,14 +28,31 @@ public class CartService {
     }
 
     public CartResponseDTO createCart(Long userId) {
+
+        userService.validateUserIsActive(userId);
+
+        if (cartRepository.findByUserId(userId).isPresent()) {
+            throw new IllegalStateException("Cart already exists for user: " + userId);
+        }
+
         Cart cart = Cart.create(userId);
-        return new CartResponseDTO(cartRepository.save(cart).getCartId(), userId);
+        Cart saved = cartRepository.save(cart);
+
+        return new CartResponseDTO(saved.getCartId(), saved.getUserId());
+
     }
 
-    public void deleteCart(Long cartId) {
-        if (!cartRepository.existsById(cartId)) {
-            throw new ResourceNotFoundException("Cart not found: " + cartId);
+    public void deleteCart(Long userId, Long cartId) {
+
+        userService.validateUserIsActive(userId);
+
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found: " + cartId));
+
+        if (!cart.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("Cart does not belong to user: " + userId);
         }
+
         cartRepository.deleteById(cartId);
     }
 }

@@ -15,6 +15,8 @@ import com.example.backend.order.entity.Order;
 import com.example.backend.order.entity.OrderItem;
 import com.example.backend.order.repository.OrderItemRepository;
 import com.example.backend.order.repository.OrderRepository;
+import com.example.backend.product.entity.Product;
+import com.example.backend.product.repository.ProductRepository;
 import com.example.backend.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,8 @@ public class OrderService {
         private final CartItemRepository cartItemRepository;
 
         private final UserService userService;
+
+        private final ProductRepository productRepository;
 
         /*
          * ======================
@@ -51,9 +55,17 @@ public class OrderService {
                                 .toList();
         }
 
-        public OrderResponseDTO getOrderById(Long orderId) {
+        public OrderResponseDTO getOrderById(Long userId, Long orderId) {
+
+                userService.validateUserIsActive(userId);
+
                 Order order = orderRepository.findById(orderId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
+
+                if (!order.getUserId().equals(userId)) {
+                        throw new IllegalArgumentException("Order does not belong to user: " + userId);
+                }
+
                 return new OrderResponseDTO(
                                 order.getOrderId(),
                                 order.getUserId(),
@@ -76,7 +88,10 @@ public class OrderService {
 
                 userService.validateUserIsActive(userId);
 
-                // 1️⃣ 取得購物車
+                if (paymentMethod == null || paymentMethod.isBlank()) {
+                        throw new IllegalArgumentException("Payment method is required.");
+                }
+
                 Cart cart = cartRepository.findByUserId(userId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user: " + userId));
 
@@ -85,24 +100,32 @@ public class OrderService {
                         throw new IllegalStateException("Cannot create order: cart is empty");
                 }
 
-                // 2️⃣ 計算總金額
-                int totalAmount = cartItems.stream().mapToInt(CartItem::getTotalPrice).sum();
+                int totalAmount = cartItems.stream()
+                                .mapToInt(CartItem::getTotalPrice)
+                                .sum();
+
                 int discountAmount = 0;
 
-                // 3️⃣ 建立 Order
                 Order order = Order.createFromCart(userId, totalAmount, discountAmount, paymentMethod);
                 orderRepository.save(order);
 
-                // 4️⃣ 將 CartItem 轉成 OrderItem
                 for (CartItem cartItem : cartItems) {
-                        OrderItem orderItem = OrderItem.fromCartItem(order.getOrderId(), cartItem, "ProductName"); // 需取得實際商品名稱
+
+                        Product product = productRepository.findById(cartItem.getProductId())
+                                        .orElseThrow(() -> new ResourceNotFoundException(
+                                                        "Product not found: " + cartItem.getProductId()));
+
+                        OrderItem orderItem = OrderItem.fromCartItem(
+                                        order.getOrderId(),
+                                        cartItem,
+                                        product.getName() // 商品名稱快照
+                        );
+
                         orderItemRepository.save(orderItem);
                 }
 
-                // 5️⃣ 清空購物車
                 cartItemRepository.deleteAll(cartItems);
 
-                // 6️⃣ 回傳結果
-                return getOrderById(order.getOrderId());
+                return getOrderById(userId, order.getOrderId());
         }
 }

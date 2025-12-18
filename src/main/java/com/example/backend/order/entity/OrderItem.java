@@ -8,7 +8,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,28 +19,32 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "order_item_id")
     private Long orderItemId;
 
     private Long orderId;
     private Long productId;
     private String productName;
     private Integer quantity;
-    private Double price; // 下單當下商品單價
-    private Double subtotal; // price * quantity
+    private Integer price; // 單價
+    private Integer subtotal; // price * quantity
 
-    public static OrderItem fromCartItem(Long orderId, CartItem cartItem, String productName) {
-        OrderItem item = new OrderItem();
-        item.orderId = orderId;
-        item.productId = cartItem.getProductId();
-        item.productName = productName;
-        item.quantity = cartItem.getQuantity();
-        item.price = cartItem.getUnitPrice().doubleValue();
-        item.subtotal = cartItem.getTotalPrice().doubleValue();
-        return item;
+    public static OrderItem fromCartItem(
+            Long orderId,
+            CartItem cartItem,
+            String productName) {
+        return OrderItem.builder()
+                .orderId(orderId)
+                .productId(cartItem.getProductId())
+                .productName(productName)
+                .quantity(cartItem.getQuantity())
+                .price(cartItem.getUnitPrice())
+                .subtotal(cartItem.getTotalPrice())
+                .build();
     }
 }

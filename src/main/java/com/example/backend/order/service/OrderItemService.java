@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.backend.order.dto.OrderItemResponseDTO;
-import com.example.backend.order.entity.OrderItem;
+import com.example.backend.order.mapper.OrderItemMapper;
 import com.example.backend.order.repository.OrderItemRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -15,18 +15,12 @@ import lombok.RequiredArgsConstructor;
 public class OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
+    private final OrderItemMapper orderItemMapper;
 
     public List<OrderItemResponseDTO> getItemsByOrderId(Long orderId) {
-        List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
-        return items.stream()
-                .map(item -> new OrderItemResponseDTO(
-                        item.getOrderItemId(),
-                        item.getOrderId(),
-                        item.getProductId(),
-                        item.getProductName(),
-                        item.getQuantity(),
-                        item.getPrice(),
-                        item.getSubtotal()))
+        return orderItemRepository.findByOrderId(orderId)
+                .stream()
+                .map(orderItemMapper::toDto)
                 .toList();
     }
 }

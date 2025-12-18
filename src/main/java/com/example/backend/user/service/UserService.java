@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.backend.common.exception.InactiveUserException;
 import com.example.backend.common.exception.ResourceNotFoundException;
 import com.example.backend.user.dto.ChangePasswordRequestDTO;
 import com.example.backend.user.dto.UserRequestDTO;
@@ -49,9 +50,13 @@ public class UserService {
         }
 
         User user = new User();
-        user.setUsername(dto.getUsername());
+        if (dto.getUsername() != null) {
+            user.setUsername(dto.getUsername());
+        }
+        if (dto.getPhone() != null) {
+            user.setPhone(dto.getPhone());
+        }
         user.setEmail(dto.getEmail());
-        user.setPhone(dto.getPhone());
 
         // TODO: replace with BCrypt later
         user.setPasswordHash(dto.getPassword());
@@ -75,19 +80,18 @@ public class UserService {
     }
 
     public void deactivateUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
-
-        user.setIsActive(false);
-        user.setUpdatedAt(LocalDateTime.now());
-        userRepository.save(user);
+        updateUserActiveStatus(id, false);
     }
 
     public void activateUser(Long id) {
+        updateUserActiveStatus(id, true);
+    }
+
+    private void updateUserActiveStatus(Long id, boolean active) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
 
-        user.setIsActive(true);
+        user.setIsActive(active);
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
     }
@@ -140,7 +144,7 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
 
         if (!Boolean.TRUE.equals(user.getIsActive())) {
-            throw new IllegalStateException("User account is deactivated.");
+            throw new InactiveUserException(userId);
         }
 
         return user;
