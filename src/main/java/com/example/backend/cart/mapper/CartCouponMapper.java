@@ -11,7 +11,7 @@ import com.example.backend.cart.entity.CartCoupon;
 public interface CartCouponMapper {
 
     @Mapping(target = "isActive", expression = "java(true)")
-    @Mapping(target = "appliedAt", expression = "java(LocalDateTime.now())")
+    @Mapping(target = "appliedAt", expression = "java(java.time.LocalDateTime.now())")
     CartCoupon toEntity(CartCouponRequestDTO dto);
 
     CartCouponResponseDTO toResponseDTO(CartCoupon entity);

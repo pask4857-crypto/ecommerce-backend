@@ -10,35 +10,53 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "users")
 @Getter
-@Setter
 @NoArgsConstructor
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
     private Long userId;
-    private String username;
-    private String email;
-    private String passwordHash;
-    private String phone;
-    private Boolean isActive;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
-    public static User create(String username, String email, String passwordHash, String phone) {
+    @Column(nullable = false, unique = true, length = 50)
+    private String email;
+
+    @Column(nullable = false)
+    private String passwordHash;
+
+    @Column(nullable = false)
+    private boolean active;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    /*
+     * ==========
+     * Factory
+     * ==========
+     */
+    public static User register(String email, String passwordHash) {
         User user = new User();
-        user.username = username;
         user.email = email;
         user.passwordHash = passwordHash;
-        user.phone = phone;
-        user.isActive = true;
+        user.active = true;
         user.createdAt = LocalDateTime.now();
-        user.updatedAt = LocalDateTime.now();
         return user;
+    }
+
+    /*
+     * ==========
+     * 行為
+     * ==========
+     */
+    public void deactivate() {
+        this.active = false;
+    }
+
+    public void activate() {
+        this.active = true;
     }
 }
