@@ -11,12 +11,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "product_variants")
 @Getter
-@Setter
 @NoArgsConstructor
 public class ProductVariant {
 
@@ -47,4 +45,44 @@ public class ProductVariant {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    /*
+     * =========================
+     * Factory Method
+     * =========================
+     */
+
+    public static ProductVariant create(
+            Long productId,
+            String sku,
+            String variantName,
+            BigDecimal price,
+            Integer stockQuantity) {
+        ProductVariant variant = new ProductVariant();
+        variant.productId = productId;
+        variant.sku = sku;
+        variant.variantName = variantName;
+        variant.price = price;
+        variant.stockQuantity = stockQuantity;
+        variant.status = "ACTIVE";
+        variant.createdAt = LocalDateTime.now();
+        variant.updatedAt = LocalDateTime.now();
+        return variant;
+    }
+
+    /*
+     * =========================
+     * Domain Methods
+     * =========================
+     */
+
+    public void adjustStock(int diff) {
+        this.stockQuantity += diff;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void deactivate() {
+        this.status = "INACTIVE";
+        this.updatedAt = LocalDateTime.now();
+    }
 }

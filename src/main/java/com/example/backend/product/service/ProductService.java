@@ -1,0 +1,100 @@
+package com.example.backend.product.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.example.backend.product.dto.ProductCreateRequest;
+import com.example.backend.product.dto.ProductDetailResponse;
+import com.example.backend.product.dto.ProductImageRequest;
+import com.example.backend.product.dto.ProductImageResponse;
+import com.example.backend.product.dto.ProductResponse;
+import com.example.backend.product.dto.ProductVariantRequest;
+import com.example.backend.product.dto.ProductVariantResponse;
+import com.example.backend.product.entity.Product;
+import com.example.backend.product.entity.ProductImage;
+import com.example.backend.product.entity.ProductVariant;
+import com.example.backend.product.repository.ProductImageRepository;
+import com.example.backend.product.repository.ProductRepository;
+import com.example.backend.product.repository.ProductVariantRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class ProductService {
+
+        private final ProductRepository productRepository;
+        private final ProductVariantRepository variantRepository;
+        private final ProductImageRepository imageRepository;
+
+        public Long createProduct(ProductCreateRequest request) {
+
+                Product product = Product.create(
+                                request.getName(),
+                                request.getDescription());
+
+                return productRepository.save(product).getId();
+        }
+
+        public void addVariant(Long productId, ProductVariantRequest request) {
+
+                if (variantRepository.findBySku(request.getSku()).isPresent()) {
+                        throw new RuntimeException("SKU already exists");
+                }
+
+                ProductVariant variant = ProductVariant.create(
+                                productId,
+                                request.getSku(),
+                                request.getVariantName(),
+                                request.getPrice(),
+                                request.getStockQuantity());
+
+                variantRepository.save(variant);
+        }
+
+        public void addImage(Long productId, ProductImageRequest request) {
+
+                ProductImage image = ProductImage.create(
+                                productId,
+                                request.getImageUrl(),
+                                request.getSortOrder());
+
+                imageRepository.save(image);
+        }
+
+        public List<ProductResponse> getProducts() {
+                return productRepository.findAll()
+                                .stream()
+                                .map(p -> new ProductResponse(p.getId(), p.getName(), p.getStatus()))
+                                .toList();
+        }
+
+        public ProductDetailResponse getProductDetail(Long productId) {
+
+                Product product = productRepository.findById(productId)
+                                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+                List<ProductVariantResponse> variants = variantRepository.findByProductId(productId)
+                                .stream()
+                                .map(v -> new ProductVariantResponse(
+                                                v.getId(),
+                                                v.getSku(),
+                                                v.getVariantName(),
+                                                v.getStockQuantity(),
+                                                v.getStatus()))
+                                .toList();
+
+                List<ProductImageResponse> images = imageRepository.findByProductIdOrderBySortOrderAsc(productId)
+                                .stream()
+                                .map(i -> new ProductImageResponse(i.getImageUrl(), i.getSortOrder()))
+                                .toList();
+
+                return new ProductDetailResponse(
+                                product.getId(),
+                                product.getName(),
+                                product.getDescription(),
+                                variants,
+                                images);
+        }
+}

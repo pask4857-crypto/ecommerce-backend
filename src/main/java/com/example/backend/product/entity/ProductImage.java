@@ -10,12 +10,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "product_images")
 @Getter
-@Setter
 @NoArgsConstructor
 public class ProductImage {
 
@@ -34,5 +32,21 @@ public class ProductImage {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+    /*
+     * =========================
+     * Factory Method
+     * =========================
+     */
 
+    public static ProductImage create(
+            Long productId,
+            String imageUrl,
+            Integer sortOrder) {
+        ProductImage image = new ProductImage();
+        image.productId = productId;
+        image.imageUrl = imageUrl;
+        image.sortOrder = sortOrder;
+        image.createdAt = LocalDateTime.now();
+        return image;
+    }
 }
