@@ -10,12 +10,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "order_items")
 @Getter
-@Setter
 @NoArgsConstructor
 public class OrderItem {
 
@@ -44,4 +42,27 @@ public class OrderItem {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal;
 
+    /*
+     * =========================
+     * Factory Method
+     * =========================
+     */
+
+    public static OrderItem create(
+            Long orderId,
+            String productName,
+            String variantName,
+            String sku,
+            BigDecimal unitPrice,
+            Integer quantity) {
+        OrderItem item = new OrderItem();
+        item.orderId = orderId;
+        item.productName = productName;
+        item.variantName = variantName;
+        item.sku = sku;
+        item.unitPrice = unitPrice;
+        item.quantity = quantity;
+        item.subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+        return item;
+    }
 }

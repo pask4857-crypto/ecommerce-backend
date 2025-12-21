@@ -11,12 +11,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "orders")
 @Getter
-@Setter
 @NoArgsConstructor
 public class Order {
 
@@ -45,4 +43,41 @@ public class Order {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    /*
+     * =========================
+     * Factory Method
+     * =========================
+     */
+
+    public static Order create(
+            String orderNumber,
+            Long userId,
+            BigDecimal totalAmount,
+            String shippingAddress) {
+        Order order = new Order();
+        order.orderNumber = orderNumber;
+        order.userId = userId;
+        order.status = "CREATED";
+        order.totalAmount = totalAmount;
+        order.shippingAddress = shippingAddress;
+        order.createdAt = LocalDateTime.now();
+        order.updatedAt = LocalDateTime.now();
+        return order;
+    }
+
+    /*
+     * =========================
+     * Domain Methods
+     * =========================
+     */
+
+    public void markPaid() {
+        this.status = "PAID";
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void cancel() {
+        this.status = "CANCELLED";
+        this.updatedAt = LocalDateTime.now();
+    }
 }

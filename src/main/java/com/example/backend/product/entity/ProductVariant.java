@@ -85,4 +85,11 @@ public class ProductVariant {
         this.status = "INACTIVE";
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void decreaseStock(int quantity) {
+        if (this.stockQuantity < quantity) {
+            throw new IllegalStateException("庫存不足");
+        }
+        this.stockQuantity -= quantity;
+    }
 }
