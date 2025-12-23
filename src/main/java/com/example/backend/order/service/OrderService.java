@@ -122,7 +122,7 @@ public class OrderService {
                 return new OrderDetailResponse(
                                 order.getId(),
                                 order.getOrderNumber(),
-                                order.getStatus(),
+                                order.getStatus().name(),
                                 order.getTotalAmount(),
                                 order.getShippingAddress(),
                                 itemResponses);
@@ -150,7 +150,7 @@ public class OrderService {
                                         return new OrderDetailResponse(
                                                         order.getId(),
                                                         order.getOrderNumber(),
-                                                        order.getStatus(),
+                                                        order.getStatus().name(),
                                                         order.getTotalAmount(),
                                                         order.getShippingAddress(),
                                                         itemResponses);
@@ -158,13 +158,17 @@ public class OrderService {
                                 .toList();
         }
 
+        // 🔒 給 Service 層用（PaymentService、RefundService…）
+        @Transactional(readOnly = true)
+        public Order getOrderEntity(Long orderId) {
+                return orderRepository.findById(orderId)
+                                .orElseThrow(() -> new IllegalArgumentException("找不到訂單"));
+        }
+
         @Transactional
         public void markOrderPaid(Long orderId) {
-
-                Order order = orderRepository.findById(orderId)
-                                .orElseThrow(() -> new IllegalArgumentException("找不到訂單"));
-
-                order.markPaid();
+                Order order = getOrderEntity(orderId);
+                order.markPaid(); // Order 裡的 domain method
         }
 
 }

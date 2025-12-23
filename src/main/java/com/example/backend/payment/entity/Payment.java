@@ -31,7 +31,7 @@ public class Payment {
     private String paymentProvider;
 
     @Column(name = "payment_status", nullable = false)
-    private String paymentStatus;
+    private PaymentStatus paymentStatus;
 
     @Column(name = "transaction_id")
     private String transactionId;
@@ -55,7 +55,7 @@ public class Payment {
         payment.orderId = orderId;
         payment.paymentMethod = paymentMethod;
         payment.paymentProvider = paymentProvider;
-        payment.paymentStatus = "PENDING";
+        payment.paymentStatus = PaymentStatus.PENDING;
         payment.createdAt = LocalDateTime.now();
         return payment;
     }
@@ -66,19 +66,16 @@ public class Payment {
      * =========================
      */
 
-    public void markPaid(String transactionId) {
-        if (!"PENDING".equals(this.paymentStatus)) {
-            throw new IllegalStateException("付款狀態不正確，無法完成付款");
-        }
-        this.paymentStatus = "PAID";
-        this.transactionId = transactionId;
-        this.paidAt = LocalDateTime.now();
+    public boolean isPaid() {
+        return this.paymentStatus == PaymentStatus.PAID;
     }
 
-    public void markFailed() {
-        if (!"PENDING".equals(this.paymentStatus)) {
-            throw new IllegalStateException("付款狀態不正確，無法標記失敗");
+    public void markPaid(String transactionId) {
+        if (this.paymentStatus != PaymentStatus.PENDING) {
+            throw new IllegalStateException("只有 PENDING 狀態的付款可以完成");
         }
-        this.paymentStatus = "FAILED";
+        this.paymentStatus = PaymentStatus.PAID;
+        this.transactionId = transactionId;
+        this.paidAt = LocalDateTime.now();
     }
 }

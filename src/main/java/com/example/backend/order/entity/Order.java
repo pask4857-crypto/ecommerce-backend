@@ -29,7 +29,7 @@ public class Order {
     private Long userId;
 
     @Column(nullable = false)
-    private String status;
+    private OrderStatus status;
 
     @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalAmount;
@@ -57,7 +57,7 @@ public class Order {
         Order order = new Order();
         order.orderNumber = orderNumber;
         order.userId = userId;
-        order.status = "CREATED";
+        order.status = OrderStatus.CREATED;
         order.totalAmount = totalAmount;
         order.shippingAddress = shippingAddress;
         order.createdAt = LocalDateTime.now();
@@ -71,16 +71,20 @@ public class Order {
      * =========================
      */
 
+    public boolean isPayable() {
+        return this.status == OrderStatus.CREATED;
+    }
+
     public void markPaid() {
-        if (!"CREATED".equals(this.status)) {
+        if (!isPayable()) {
             throw new IllegalStateException("只有 CREATED 狀態的訂單可以付款");
         }
-        this.status = "PAID";
+        this.status = OrderStatus.PAID;
         this.updatedAt = LocalDateTime.now();
     }
 
     public void cancel() {
-        this.status = "CANCELLED";
+        this.status = OrderStatus.CANCELLED;
         this.updatedAt = LocalDateTime.now();
     }
 }

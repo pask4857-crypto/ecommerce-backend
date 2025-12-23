@@ -6,10 +6,12 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.backend.order.entity.Order;
 import com.example.backend.order.service.OrderService;
 import com.example.backend.payment.dto.PaymentCreateRequest;
 import com.example.backend.payment.dto.PaymentResponseDto;
 import com.example.backend.payment.entity.Payment;
+import com.example.backend.payment.entity.PaymentStatus;
 import com.example.backend.payment.repository.PaymentRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -24,8 +26,18 @@ public class PaymentService {
     @Transactional
     public Long createPayment(PaymentCreateRequest request) {
 
-        boolean hasPendingPayment = paymentRepository.existsByOrderIdAndPaymentStatus(
-                request.getOrderId(), "PENDING");
+        // ⭐ 一定要先檢查訂單狀態
+        Order order = orderService.getOrderEntity(request.getOrderId());
+
+        if (!order.isPayable()) {
+            throw new IllegalStateException("此訂單狀態無法建立付款");
+        }
+
+        // 2️⃣ 檢查是否已有進行中的付款（Payment enum）
+        boolean hasPendingPayment = paymentRepository
+                .existsByOrderIdAndPaymentStatus(
+                        request.getOrderId(),
+                        PaymentStatus.PENDING);
 
         if (hasPendingPayment) {
             throw new IllegalStateException("此訂單已有進行中的付款，請勿重複建立");
@@ -73,7 +85,7 @@ public class PaymentService {
                 .orderId(payment.getOrderId())
                 .paymentMethod(payment.getPaymentMethod())
                 .paymentProvider(payment.getPaymentProvider())
-                .paymentStatus(payment.getPaymentStatus())
+                .paymentStatus(payment.getPaymentStatus().name())
                 .transactionId(payment.getTransactionId())
                 .paidAt(payment.getPaidAt())
                 .build();
