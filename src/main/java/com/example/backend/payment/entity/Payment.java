@@ -10,12 +10,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "payments")
 @Getter
-@Setter
 @NoArgsConstructor
 public class Payment {
 
@@ -44,4 +42,43 @@ public class Payment {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    /*
+     * =========================
+     * Factory Method
+     * =========================
+     */
+    public static Payment create(
+            Long orderId,
+            String paymentMethod,
+            String paymentProvider) {
+        Payment payment = new Payment();
+        payment.orderId = orderId;
+        payment.paymentMethod = paymentMethod;
+        payment.paymentProvider = paymentProvider;
+        payment.paymentStatus = "PENDING";
+        payment.createdAt = LocalDateTime.now();
+        return payment;
+    }
+
+    /*
+     * =========================
+     * Domain Behavior
+     * =========================
+     */
+
+    public void markPaid(String transactionId) {
+        if (!"PENDING".equals(this.paymentStatus)) {
+            throw new IllegalStateException("付款狀態不正確，無法完成付款");
+        }
+        this.paymentStatus = "PAID";
+        this.transactionId = transactionId;
+        this.paidAt = LocalDateTime.now();
+    }
+
+    public void markFailed() {
+        if (!"PENDING".equals(this.paymentStatus)) {
+            throw new IllegalStateException("付款狀態不正確，無法標記失敗");
+        }
+        this.paymentStatus = "FAILED";
+    }
 }
