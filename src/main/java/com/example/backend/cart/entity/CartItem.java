@@ -10,12 +10,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "cart_items")
 @Getter
-@Setter
 @NoArgsConstructor
 public class CartItem {
 
@@ -38,4 +36,18 @@ public class CartItem {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    public static CartItem create(Long cartId, Long productVariantId, int quantity) {
+        CartItem item = new CartItem();
+        item.cartId = cartId;
+        item.productVariantId = productVariantId;
+        item.quantity = quantity;
+        item.createdAt = LocalDateTime.now();
+        item.updatedAt = LocalDateTime.now();
+        return item;
+    }
+
+    public void increaseQuantity(int amount) {
+        this.quantity += amount;
+        this.updatedAt = LocalDateTime.now();
+    }
 }
