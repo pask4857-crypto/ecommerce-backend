@@ -1,11 +1,13 @@
 package com.example.backend.payment.service;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.backend.payment.dto.PaymentRequestDto;
+import com.example.backend.order.service.OrderService;
+import com.example.backend.payment.dto.PaymentCreateRequest;
 import com.example.backend.payment.dto.PaymentResponseDto;
 import com.example.backend.payment.entity.Payment;
 import com.example.backend.payment.repository.PaymentRepository;
@@ -17,18 +19,24 @@ import lombok.RequiredArgsConstructor;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final OrderService orderService;
 
     @Transactional
-    public PaymentResponseDto createPayment(PaymentRequestDto request) {
+    public Long createPayment(PaymentCreateRequest request) {
+
+        boolean hasPendingPayment = paymentRepository.existsByOrderIdAndPaymentStatus(
+                request.getOrderId(), "PENDING");
+
+        if (hasPendingPayment) {
+            throw new IllegalStateException("此訂單已有進行中的付款，請勿重複建立");
+        }
 
         Payment payment = Payment.create(
                 request.getOrderId(),
                 request.getPaymentMethod(),
                 request.getPaymentProvider());
 
-        paymentRepository.save(payment);
-
-        return toResponse(payment);
+        return paymentRepository.save(payment).getId();
     }
 
     @Transactional
@@ -37,20 +45,26 @@ public class PaymentService {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("找不到付款紀錄"));
 
-        // 模擬第三方金流交易編號
+        if ("PAID".equals(payment.getPaymentStatus())) {
+            throw new IllegalStateException("此付款已完成，請勿重複付款");
+        }
+
         String transactionId = UUID.randomUUID().toString();
 
         payment.markPaid(transactionId);
 
+        // ⭐ 付款成功 → 更新訂單狀態
+        orderService.markOrderPaid(payment.getOrderId());
+
         return toResponse(payment);
     }
 
-    public PaymentResponseDto getByOrderId(Long orderId) {
+    @Transactional(readOnly = true)
+    public List<PaymentResponseDto> getByOrderId(Long orderId) {
 
-        Payment payment = paymentRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("找不到該訂單的付款資訊"));
-
-        return toResponse(payment);
+        return paymentRepository.findByOrderId(orderId).stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     private PaymentResponseDto toResponse(Payment payment) {

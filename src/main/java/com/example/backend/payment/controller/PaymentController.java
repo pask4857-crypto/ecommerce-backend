@@ -1,5 +1,7 @@
 package com.example.backend.payment.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.backend.payment.dto.PaymentCreateRequest;
 import com.example.backend.payment.dto.PaymentRequestDto;
 import com.example.backend.payment.dto.PaymentResponseDto;
 import com.example.backend.payment.service.PaymentService;
@@ -25,8 +28,9 @@ public class PaymentController {
      * 建立付款單（PENDING）
      */
     @PostMapping
-    public ResponseEntity<PaymentResponseDto> createPayment(
-            @RequestBody PaymentRequestDto request) {
+    public ResponseEntity<Long> createPayment(
+            @RequestBody PaymentCreateRequest request) {
+
         return ResponseEntity.ok(paymentService.createPayment(request));
     }
 
@@ -43,8 +47,9 @@ public class PaymentController {
      * 查詢訂單付款狀態
      */
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<PaymentResponseDto> getByOrderId(
+    public ResponseEntity<List<PaymentResponseDto>> getByOrderId(
             @PathVariable Long orderId) {
+
         return ResponseEntity.ok(paymentService.getByOrderId(orderId));
     }
 }

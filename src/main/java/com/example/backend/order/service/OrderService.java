@@ -158,4 +158,13 @@ public class OrderService {
                                 .toList();
         }
 
+        @Transactional
+        public void markOrderPaid(Long orderId) {
+
+                Order order = orderRepository.findById(orderId)
+                                .orElseThrow(() -> new IllegalArgumentException("找不到訂單"));
+
+                order.markPaid();
+        }
+
 }

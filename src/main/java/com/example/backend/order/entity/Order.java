@@ -72,6 +72,9 @@ public class Order {
      */
 
     public void markPaid() {
+        if (!"CREATED".equals(this.status)) {
+            throw new IllegalStateException("只有 CREATED 狀態的訂單可以付款");
+        }
         this.status = "PAID";
         this.updatedAt = LocalDateTime.now();
     }
