@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.payment.dto.PaymentCreateRequest;
-import com.example.backend.payment.dto.PaymentRequestDto;
 import com.example.backend.payment.dto.PaymentResponseDto;
 import com.example.backend.payment.service.PaymentService;
 
