@@ -18,9 +18,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody RegisterRequest request) {
-        userService.register(request);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Long> register(@RequestBody RegisterRequest request) {
+        Long userId = userService.register(request);
+        return ResponseEntity.ok(userId);
     }
 
     @PostMapping("/login")

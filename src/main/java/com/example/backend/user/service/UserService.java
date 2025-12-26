@@ -18,10 +18,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public void register(RegisterRequest request) {
+    public Long register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new RuntimeException("Email已被使用");
         }
 
         User user = User.create(
@@ -30,7 +30,7 @@ public class UserService {
                 request.getName(),
                 request.getPhone());
 
-        userRepository.save(user);
+        return userRepository.save(user).getId();
     }
 
     public LoginResponse login(LoginRequest request) {
