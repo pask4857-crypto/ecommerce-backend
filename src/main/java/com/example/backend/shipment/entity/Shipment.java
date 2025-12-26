@@ -33,7 +33,7 @@ public class Shipment {
     private String trackingNumber;
 
     @Column(nullable = false)
-    private String status;
+    private ShipmentStatus status;
 
     @Column(name = "shipped_at")
     private LocalDateTime shippedAt;

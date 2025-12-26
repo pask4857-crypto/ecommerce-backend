@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,8 +36,9 @@ public class User {
     @Column(nullable = false)
     private String role;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private UserStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -60,7 +63,7 @@ public class User {
         user.name = name;
         user.phone = phone;
         user.role = "USER";
-        user.status = "ACTIVE";
+        user.status = UserStatus.ACTIVE;
         user.createdAt = LocalDateTime.now();
         user.updatedAt = LocalDateTime.now();
         return user;
@@ -79,7 +82,7 @@ public class User {
     }
 
     public void deactivate() {
-        this.status = "INACTIVE";
+        this.status = UserStatus.SUSPENDED;
         this.updatedAt = LocalDateTime.now();
     }
 }

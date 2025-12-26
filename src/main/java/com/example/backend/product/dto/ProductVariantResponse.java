@@ -1,5 +1,7 @@
 package com.example.backend.product.dto;
 
+import com.example.backend.product.entity.ProductVariantStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,5 +12,5 @@ public class ProductVariantResponse {
     private String sku;
     private String variantName;
     private Integer stockQuantity;
-    private String status;
+    private ProductVariantStatus status;
 }

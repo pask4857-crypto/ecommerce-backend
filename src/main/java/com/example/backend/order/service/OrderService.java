@@ -122,7 +122,7 @@ public class OrderService {
                 return new OrderDetailResponse(
                                 order.getId(),
                                 order.getOrderNumber(),
-                                order.getStatus().name(),
+                                order.getStatus(),
                                 order.getTotalAmount(),
                                 order.getShippingAddress(),
                                 itemResponses);
@@ -150,7 +150,7 @@ public class OrderService {
                                         return new OrderDetailResponse(
                                                         order.getId(),
                                                         order.getOrderNumber(),
-                                                        order.getStatus().name(),
+                                                        order.getStatus(),
                                                         order.getTotalAmount(),
                                                         order.getShippingAddress(),
                                                         itemResponses);

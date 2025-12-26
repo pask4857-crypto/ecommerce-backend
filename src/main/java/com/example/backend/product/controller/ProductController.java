@@ -58,4 +58,18 @@ public class ProductController {
             @PathVariable Long productId) {
         return ResponseEntity.ok(productService.getProductDetail(productId));
     }
+
+    @PostMapping("/{productId}/activate")
+    public ResponseEntity<Void> activateProduct(
+            @PathVariable Long productId) {
+        productService.activateProduct(productId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{productId}/deactivate")
+    public ResponseEntity<Void> deactivateProduct(
+            @PathVariable Long productId) {
+        productService.deactivateProduct(productId);
+        return ResponseEntity.noContent().build();
+    }
 }

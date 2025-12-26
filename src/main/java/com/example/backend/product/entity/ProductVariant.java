@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,8 +39,9 @@ public class ProductVariant {
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private ProductVariantStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -64,7 +67,7 @@ public class ProductVariant {
         variant.variantName = variantName;
         variant.price = price;
         variant.stockQuantity = stockQuantity;
-        variant.status = "ACTIVE";
+        variant.status = ProductVariantStatus.ACTIVE;
         variant.createdAt = LocalDateTime.now();
         variant.updatedAt = LocalDateTime.now();
         return variant;
@@ -82,7 +85,7 @@ public class ProductVariant {
     }
 
     public void deactivate() {
-        this.status = "INACTIVE";
+        this.status = ProductVariantStatus.DISABLED;
         this.updatedAt = LocalDateTime.now();
     }
 
