@@ -4,18 +4,18 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "shipments")
 @Getter
-@Setter
 @NoArgsConstructor
 public class Shipment {
 
@@ -32,6 +32,7 @@ public class Shipment {
     @Column(name = "tracking_number")
     private String trackingNumber;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ShipmentStatus status;
 
@@ -41,4 +42,45 @@ public class Shipment {
     @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;
 
+    /*
+     * =========================
+     * Factory Method
+     * =========================
+     */
+    public static Shipment create(Long orderId, String shippingMethod) {
+        Shipment shipment = new Shipment();
+        shipment.orderId = orderId;
+        shipment.shippingMethod = shippingMethod;
+        shipment.status = ShipmentStatus.PENDING;
+        return shipment;
+    }
+
+    /*
+     * =========================
+     * Domain Methods
+     * =========================
+     */
+    public void markShipped(String trackingNumber) {
+        if (this.status != ShipmentStatus.PENDING) {
+            throw new IllegalStateException("只有 PENDING 狀態的出貨單可以標記為已出貨");
+        }
+        this.status = ShipmentStatus.SHIPPED;
+        this.trackingNumber = trackingNumber;
+        this.shippedAt = LocalDateTime.now();
+    }
+
+    public void markDelivered() {
+        if (this.status != ShipmentStatus.SHIPPED) {
+            throw new IllegalStateException("只有 SHIPPED 狀態的出貨單可以標記為已送達");
+        }
+        this.status = ShipmentStatus.DELIVERED;
+        this.deliveredAt = LocalDateTime.now();
+    }
+
+    public void cancel() {
+        if (this.status == ShipmentStatus.DELIVERED) {
+            throw new IllegalStateException("已送達的出貨單不可取消");
+        }
+        this.status = ShipmentStatus.CANCELLED;
+    }
 }

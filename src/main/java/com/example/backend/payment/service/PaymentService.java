@@ -13,6 +13,7 @@ import com.example.backend.payment.dto.PaymentResponseDto;
 import com.example.backend.payment.entity.Payment;
 import com.example.backend.payment.entity.PaymentStatus;
 import com.example.backend.payment.repository.PaymentRepository;
+import com.example.backend.shipment.service.ShipmentService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +23,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final OrderService orderService;
+    private final ShipmentService shipmentService;
 
     @Transactional
     public Long createPayment(PaymentCreateRequest request) {
@@ -57,7 +59,7 @@ public class PaymentService {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("找不到付款紀錄"));
 
-        if ("PAID".equals(payment.getPaymentStatus())) {
+        if (payment.getPaymentStatus() == PaymentStatus.PAID) {
             throw new IllegalStateException("此付款已完成，請勿重複付款");
         }
 
@@ -67,6 +69,9 @@ public class PaymentService {
 
         // ⭐ 付款成功 → 更新訂單狀態
         orderService.markOrderPaid(payment.getOrderId());
+
+        // ⭐ 自動建立出貨單
+        shipmentService.createShipment(payment.getOrderId(), "預設運送方式");
 
         return toResponse(payment);
     }
