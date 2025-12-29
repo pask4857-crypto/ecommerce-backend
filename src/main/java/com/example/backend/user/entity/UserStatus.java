@@ -5,7 +5,7 @@ public enum UserStatus {
     SUSPENDED,
     DELETED;
 
-    public boolean isLoginAllowed() {
+    public boolean isActive() {
         return this == ACTIVE;
     }
 }

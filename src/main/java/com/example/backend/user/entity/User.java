@@ -33,8 +33,9 @@ public class User {
 
     private String phone;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role;
+    private UserRole role;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -62,7 +63,7 @@ public class User {
         user.passwordHash = passwordHash;
         user.name = name;
         user.phone = phone;
-        user.role = "USER";
+        user.role = UserRole.USER;
         user.status = UserStatus.ACTIVE;
         user.createdAt = LocalDateTime.now();
         user.updatedAt = LocalDateTime.now();
@@ -71,7 +72,7 @@ public class User {
 
     /*
      * =========================
-     * Domain Method（預留）
+     * Domain Method
      * =========================
      */
 
