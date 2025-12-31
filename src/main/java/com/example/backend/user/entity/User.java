@@ -47,6 +47,10 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    public String getPassword() {
+        return this.passwordHash;
+    }
+
     /*
      * =========================
      * Factory Method

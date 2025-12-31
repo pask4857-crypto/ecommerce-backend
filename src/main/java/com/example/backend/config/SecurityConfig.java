@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -14,11 +13,15 @@ import com.example.backend.user.security.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
-@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
         private final CustomUserDetailsService customUserDetailsService;
+
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -27,14 +30,14 @@ public class SecurityConfig {
                                 .csrf(csrf -> csrf.disable())
 
                                 .authorizeHttpRequests(auth -> auth
-                                                // ✅ 公開 API（不用登入）
+                                                // 公開 API（不用登入）
                                                 .requestMatchers("/api/users/register").permitAll()
                                                 .requestMatchers("/api/users/login").permitAll()
 
-                                                // ✅ 後台 API
+                                                // 後台 API
                                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                                                // ✅ 其餘 API 需要登入
+                                                // 其餘 API 需要登入
                                                 .requestMatchers("/api/**").authenticated()
 
                                                 // 其他
@@ -49,11 +52,4 @@ public class SecurityConfig {
                 return http.build();
         }
 
-        /**
-         * ✅ 一定要有的 PasswordEncoder
-         */
-        @Bean
-        public PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder();
-        }
 }

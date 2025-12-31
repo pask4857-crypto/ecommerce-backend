@@ -1,13 +1,11 @@
 package com.example.backend.user.security;
 
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.example.backend.user.entity.User;
-import com.example.backend.user.entity.UserStatus;
 import com.example.backend.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -23,19 +21,13 @@ public class CustomUserDetailsService implements UserDetailsService {
                         throws UsernameNotFoundException {
 
                 User user = userRepository.findByEmail(email)
-                                .orElseThrow(() -> new UsernameNotFoundException("使用者不存在"));
+                                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-                boolean enabled = user.getStatus() == UserStatus.ACTIVE;
-
-                return org.springframework.security.core.userdetails.User.builder()
-                                .username(user.getEmail())
-                                .password(user.getPasswordHash())
-                                .authorities(
-                                                new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
-                                .accountExpired(false)
-                                .accountLocked(!enabled)
-                                .credentialsExpired(false)
-                                .disabled(!enabled)
+                return org.springframework.security.core.userdetails.User
+                                .withUsername(user.getEmail())
+                                .password(user.getPassword())
+                                .roles(user.getRole().name()) // USER / ADMIN
+                                .disabled(!user.getStatus().isActive())
                                 .build();
         }
 }
