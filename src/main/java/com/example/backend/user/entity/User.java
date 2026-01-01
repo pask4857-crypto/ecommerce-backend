@@ -57,6 +57,17 @@ public class User {
      * =========================
      */
 
+    public static User createAdmin(String email, String passwordHash) {
+        User user = new User();
+        user.email = email;
+        user.passwordHash = passwordHash;
+        user.role = UserRole.ADMIN;
+        user.status = UserStatus.ACTIVE;
+        user.createdAt = LocalDateTime.now();
+        user.updatedAt = LocalDateTime.now();
+        return user;
+    }
+
     public static User create(
             String email,
             String passwordHash,
