@@ -31,4 +31,11 @@ public class AdminUserController {
         adminUserService.suspendUser(userId);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/{userId}/reactivate")
+    public ResponseEntity<Void> reactivateUser(@PathVariable Long userId) {
+        adminUserService.reactivateUser(userId);
+        return ResponseEntity.ok().build();
+    }
+
 }

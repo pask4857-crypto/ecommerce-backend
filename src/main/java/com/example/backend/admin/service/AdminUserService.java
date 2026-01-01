@@ -50,4 +50,13 @@ public class AdminUserService {
         user.deactivate();
     }
 
+    @Transactional
+    public void reactivateUser(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("使用者不存在"));
+
+        user.reactivate();
+    }
+
 }

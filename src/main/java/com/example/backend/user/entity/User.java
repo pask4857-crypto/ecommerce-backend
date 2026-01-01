@@ -101,4 +101,13 @@ public class User {
         this.status = UserStatus.SUSPENDED;
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void reactivate() {
+        if (this.status != UserStatus.SUSPENDED) {
+            throw new IllegalStateException("只有被停用的使用者才能解除停用");
+        }
+        this.status = UserStatus.ACTIVE;
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }
