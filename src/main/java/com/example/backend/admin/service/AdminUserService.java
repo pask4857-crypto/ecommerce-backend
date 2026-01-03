@@ -2,13 +2,15 @@ package com.example.backend.admin.service;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.admin.dto.AdminUserResponse;
 import com.example.backend.user.entity.User;
-import com.example.backend.user.entity.UserStatus;
 import com.example.backend.user.repository.UserRepository;
+import com.example.backend.user.security.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,17 +39,29 @@ public class AdminUserService {
                 user.getCreatedAt());
     }
 
-    @Transactional
-    public void suspendUser(Long userId) {
+    private CustomUserDetails currentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("使用者不存在"));
-
-        if (user.getStatus() == UserStatus.SUSPENDED) {
-            throw new IllegalStateException("使用者已被停用");
+        if (auth == null || !(auth.getPrincipal() instanceof CustomUserDetails user)) {
+            throw new IllegalStateException("未登入或登入資訊異常");
         }
 
-        user.deactivate();
+        return user;
+    }
+
+    @Transactional
+    public void suspendUser(Long targetUserId) {
+
+        CustomUserDetails current = currentUser();
+
+        if (current.getUserId().equals(targetUserId)) {
+            throw new IllegalStateException("不可停用自己的帳號");
+        }
+
+        User target = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("使用者不存在"));
+
+        target.deactivate();
     }
 
     @Transactional

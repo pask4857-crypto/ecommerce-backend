@@ -2,7 +2,6 @@ package com.example.backend.user.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.user.dto.LoginRequest;
 import com.example.backend.user.dto.LoginResponse;
@@ -46,12 +45,4 @@ public class UserService {
         return new LoginResponse(user.getId(), user.getEmail());
     }
 
-    @Transactional
-    public void suspendUser(Long userId) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        user.deactivate();
-    }
 }
