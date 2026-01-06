@@ -8,6 +8,7 @@ import com.example.backend.order.dto.OrderDetailResponse;
 import com.example.backend.order.dto.OrderItemResponse;
 import com.example.backend.order.entity.Order;
 import com.example.backend.order.entity.OrderItem;
+import com.example.backend.order.entity.OrderStatus;
 import com.example.backend.order.repository.OrderItemRepository;
 import com.example.backend.order.repository.OrderRepository;
 import com.example.backend.product.entity.Product;
@@ -169,6 +170,29 @@ public class OrderService {
         public void markOrderPaid(Long orderId) {
                 Order order = getOrderEntity(orderId);
                 order.markPaid(); // Order 裡的 domain method
+        }
+
+        @Transactional
+        public void cancelOrder(Long orderId, Long currentUserId) {
+
+                Order order = orderRepository.findById(orderId)
+                                .orElseThrow(() -> new IllegalArgumentException("訂單不存在"));
+                System.out.println("currentUserId = " + currentUserId);
+                System.out.println("order.userId = " + order.getUserId());
+                // 只能取消自己的訂單
+                if (!order.getUserId().equals(currentUserId)) {
+                        throw new IllegalStateException("不可取消他人的訂單");
+                }
+
+                // 狀態檢查（MVP：已取消不能再取消）
+                if (order.getStatus() == OrderStatus.CANCELLED) {
+                        throw new IllegalStateException("訂單已取消");
+                }
+
+                // 之後你可以再加：PAID / SHIPPED 不可取消
+
+                // 呼叫 Domain Method
+                order.cancel();
         }
 
 }

@@ -3,7 +3,9 @@ package com.example.backend.order.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +17,7 @@ import com.example.backend.order.dto.OrderCreateRequest;
 import com.example.backend.order.dto.OrderCreateResponse;
 import com.example.backend.order.dto.OrderDetailResponse;
 import com.example.backend.order.service.OrderService;
+import com.example.backend.user.security.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,6 +51,14 @@ public class OrderController {
                         @RequestParam Long userId) {
                 return ResponseEntity.ok(
                                 orderService.getOrdersByUser(userId));
+        }
+
+        @PatchMapping("/{orderId}/cancel")
+        public ResponseEntity<Void> cancelOrder(
+                        @PathVariable Long orderId,
+                        @AuthenticationPrincipal CustomUserDetails user) {
+                orderService.cancelOrder(orderId, user.getUserId());
+                return ResponseEntity.ok().build();
         }
 
 }
