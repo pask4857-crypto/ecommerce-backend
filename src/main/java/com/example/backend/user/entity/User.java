@@ -98,6 +98,11 @@ public class User {
     }
 
     public void deactivate() {
+
+        if (this.status == UserStatus.SUSPENDED) {
+            throw new IllegalStateException("使用者已被停用");
+        }
+
         this.status = UserStatus.SUSPENDED;
         this.updatedAt = LocalDateTime.now();
     }

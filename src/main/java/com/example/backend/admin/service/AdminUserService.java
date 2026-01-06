@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.admin.dto.AdminUserResponse;
 import com.example.backend.user.entity.User;
+import com.example.backend.user.entity.UserRole;
+import com.example.backend.user.entity.UserStatus;
 import com.example.backend.user.repository.UserRepository;
 import com.example.backend.user.security.CustomUserDetails;
 
@@ -60,6 +62,15 @@ public class AdminUserService {
 
         User target = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new IllegalArgumentException("使用者不存在"));
+
+        if (target.getRole() == UserRole.ADMIN && target.getStatus() == UserStatus.ACTIVE) {
+
+            long activeAdminCount = userRepository.countByRoleAndStatus(UserRole.ADMIN, UserStatus.ACTIVE);
+
+            if (activeAdminCount <= 1) {
+                throw new IllegalStateException("不可停用最後一個管理員帳號");
+            }
+        }
 
         target.deactivate();
     }
