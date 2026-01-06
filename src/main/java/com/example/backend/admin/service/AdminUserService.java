@@ -1,5 +1,6 @@
 package com.example.backend.admin.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.security.core.Authentication;
@@ -8,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.admin.dto.AdminUserResponse;
+import com.example.backend.audit_log.entity.ActionType;
+import com.example.backend.audit_log.entity.UserActionLog;
+import com.example.backend.audit_log.repository.UserActionLogRepository;
 import com.example.backend.user.entity.User;
 import com.example.backend.user.entity.UserRole;
 import com.example.backend.user.entity.UserStatus;
@@ -21,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class AdminUserService {
 
     private final UserRepository userRepository;
+    private final UserActionLogRepository actionLogRepository;
 
     @Transactional(readOnly = true)
     public List<AdminUserResponse> getAllUsers() {
@@ -51,7 +56,6 @@ public class AdminUserService {
         return user;
     }
 
-    @Transactional
     public void suspendUser(Long targetUserId) {
 
         CustomUserDetails current = currentUser();
@@ -72,16 +76,38 @@ public class AdminUserService {
             }
         }
 
+        // === 狀態變更 ===
         target.deactivate();
+
+        // === 審計紀錄（只在成功後寫入）===
+        actionLogRepository.save(
+                UserActionLog.builder()
+                        .operatorId(current.getUserId())
+                        .targetUserId(target.getId())
+                        .action(ActionType.SUSPEND)
+                        .createdAt(LocalDateTime.now())
+                        .build());
     }
 
     @Transactional
     public void reactivateUser(Long userId) {
 
+        CustomUserDetails current = currentUser();
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("使用者不存在"));
 
+        // === 狀態變更 ===
         user.reactivate();
+
+        // === 審計紀錄 ===
+        actionLogRepository.save(
+                UserActionLog.builder()
+                        .operatorId(current.getUserId())
+                        .targetUserId(user.getId())
+                        .action(ActionType.REACTIVATE)
+                        .createdAt(LocalDateTime.now())
+                        .build());
     }
 
 }

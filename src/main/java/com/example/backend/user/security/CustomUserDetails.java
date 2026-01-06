@@ -17,8 +17,6 @@ public class CustomUserDetails implements UserDetails {
         this.user = user;
     }
 
-    /* ===== 你最需要的 ===== */
-
     public Long getUserId() {
         return user.getId();
     }
@@ -26,8 +24,6 @@ public class CustomUserDetails implements UserDetails {
     public User getUser() {
         return user;
     }
-
-    /* ===== UserDetails 必實作 ===== */
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
