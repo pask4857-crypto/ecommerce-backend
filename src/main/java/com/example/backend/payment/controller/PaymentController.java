@@ -43,6 +43,17 @@ public class PaymentController {
     }
 
     /**
+     * 取得綠界付款網址（回傳 URL 字串）
+     */
+    @PostMapping("/{paymentId}/ecpay")
+    public ResponseEntity<String> getEcpayPaymentUrl(
+            @PathVariable Long paymentId) {
+
+        String paymentUrl = paymentService.createECPayPaymentUrl(paymentId);
+        return ResponseEntity.ok(paymentUrl);
+    }
+
+    /**
      * 查詢訂單付款狀態
      */
     @GetMapping("/order/{orderId}")

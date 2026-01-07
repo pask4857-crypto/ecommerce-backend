@@ -90,4 +90,14 @@ public class Order {
         this.status = OrderStatus.CANCELLED;
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void pay() {
+        this.status = OrderStatus.PAID;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void paymentFailed() {
+        this.status = OrderStatus.FAILED;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

@@ -27,7 +27,7 @@ public class Payment {
     private Long orderId;
 
     @Column(name = "payment_method", nullable = false)
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
 
     @Column(name = "payment_provider", nullable = false)
     private String paymentProvider;
@@ -39,11 +39,17 @@ public class Payment {
     @Column(name = "transaction_id")
     private String transactionId;
 
+    @Column(name = "merchant_trade_no")
+    private String merchantTradeNo;
+
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
     /*
      * =========================
@@ -56,10 +62,11 @@ public class Payment {
             String paymentProvider) {
         Payment payment = new Payment();
         payment.orderId = orderId;
-        payment.paymentMethod = paymentMethod;
+        payment.paymentMethod = PaymentMethod.Credit;
         payment.paymentProvider = paymentProvider;
         payment.paymentStatus = PaymentStatus.PENDING;
         payment.createdAt = LocalDateTime.now();
+        payment.updatedAt = LocalDateTime.now();
         return payment;
     }
 
@@ -68,6 +75,14 @@ public class Payment {
      * Domain Behavior
      * =========================
      */
+
+    public void assignMerchantTradeNo(String merchantTradeNo) {
+        if (this.merchantTradeNo != null) {
+            throw new IllegalStateException("MerchantTradeNo 已存在，不能重複指定");
+        }
+        this.merchantTradeNo = merchantTradeNo;
+        this.updatedAt = LocalDateTime.now();
+    }
 
     public boolean isPaid() {
         return this.paymentStatus == PaymentStatus.PAID;
@@ -81,4 +96,15 @@ public class Payment {
         this.transactionId = transactionId;
         this.paidAt = LocalDateTime.now();
     }
+
+    public void markSuccess() {
+        this.paymentStatus = PaymentStatus.PAID;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void markFailed() {
+        this.paymentStatus = PaymentStatus.FAILED;
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }
