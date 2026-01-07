@@ -6,7 +6,6 @@ import java.security.MessageDigest;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 public class EcpayHashUtil {
     public static String generateCheckMacValue(Map<String, String> params, String hashKey, String hashIV) {
