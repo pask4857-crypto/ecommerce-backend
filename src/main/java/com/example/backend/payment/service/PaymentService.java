@@ -188,7 +188,6 @@ public class PaymentService {
             payment.markSuccess();
             order.pay();
 
-            // ➜ 自動建立出貨單
             shipmentService.createShipment(order.getId(), "綠界-一般宅配");
 
             return;
@@ -197,6 +196,48 @@ public class PaymentService {
             payment.markFailed();
             order.paymentFailed();
         }
+    }
+
+    @Transactional
+    public PaymentResponseDto failPayment(Long paymentId) {
+        // 1. 取得付款紀錄
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("找不到付款紀錄"));
+
+        // 2. 只有 PENDING 或未付款的狀態可以標記為失敗
+        if (payment.getPaymentStatus() == PaymentStatus.PAID) {
+            throw new IllegalStateException("已付款的付款紀錄不可標記為失敗");
+        }
+
+        // 3. 更新 Payment 狀態為 FAILED
+        payment.markFailed();
+        paymentRepository.save(payment);
+
+        // 4. 轉成 DTO 回傳
+        return PaymentResponseDto.fromEntity(payment);
+    }
+
+    @Transactional
+    public String retryPayment(Long paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("找不到付款紀錄"));
+
+        // 只允許 FAILED 才能重新付款
+        if (payment.getPaymentStatus() != PaymentStatus.FAILED) {
+            throw new IllegalStateException("只有 FAILED 狀態可以重新付款");
+        }
+
+        // 將狀態改為 PENDING
+        payment.markPending();
+
+        // 重新產生 merchant trade no
+        String newMerchantTradeNo = "RETRY" + System.currentTimeMillis();
+        payment.assignMerchantTradeNo(newMerchantTradeNo);
+
+        paymentRepository.save(payment);
+
+        // 呼叫你現有的付款表單建立流程
+        return createECPayPaymentUrl(paymentId);
     }
 
     /*

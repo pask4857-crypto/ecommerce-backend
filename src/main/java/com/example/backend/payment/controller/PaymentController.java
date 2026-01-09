@@ -43,6 +43,20 @@ public class PaymentController {
     }
 
     /**
+     * 模擬付款失敗
+     */
+    @PostMapping("/{paymentId}/fail")
+    public ResponseEntity<PaymentResponseDto> failPayment(@PathVariable Long paymentId) {
+        return ResponseEntity.ok(paymentService.failPayment(paymentId));
+    }
+
+    @PostMapping("/{paymentId}/retry")
+    public ResponseEntity<String> retryPayment(@PathVariable Long paymentId) {
+        String formHtml = paymentService.retryPayment(paymentId);
+        return ResponseEntity.ok(formHtml);
+    }
+
+    /**
      * 取得綠界付款網址（回傳 URL 字串）
      */
     @PostMapping("/{paymentId}/ecpay")

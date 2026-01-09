@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.shipment.dto.ShipmentResponseDto;
 import com.example.backend.shipment.entity.Shipment;
+import com.example.backend.shipment.entity.ShipmentStatus;
 import com.example.backend.shipment.repository.ShipmentRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -30,17 +31,26 @@ public class ShipmentService {
         Shipment shipment = Shipment.create(orderId, shippingMethod);
         shipment = shipmentRepository.save(shipment);
 
-        Shipment saved = shipmentRepository.save(shipment); // 接住 save 回傳值
-
+        Shipment saved = shipmentRepository.save(shipment);
         return ShipmentResponseDto.fromEntity(saved);
     }
 
     @Transactional
-    public ShipmentResponseDto markShipped(Long shipmentId, String trackingNumber) {
+    public ShipmentResponseDto markShipped(Long shipmentId) {
         Shipment shipment = shipmentRepository.findById(shipmentId)
-                .orElseThrow(() -> new IllegalArgumentException("找不到出貨單"));
-        shipment.markShipped(trackingNumber);
-        return toResponse(shipment);
+                .orElseThrow(() -> new IllegalArgumentException("出貨單不存在"));
+
+        if (shipment.getStatus() != ShipmentStatus.PENDING) {
+            throw new IllegalStateException("出貨單已經標記為已出貨或已完成");
+        }
+
+        // 自動生成 tracking number（範例：SHIP+當前時間戳+亂數）
+        String trackingNumber = "SHIP" + System.currentTimeMillis() + (int) (Math.random() * 1000);
+
+        shipment.markShipped(trackingNumber); // 這裡更新狀態與追蹤號碼
+        shipmentRepository.save(shipment);
+
+        return ShipmentResponseDto.fromEntity(shipment);
     }
 
     @Transactional

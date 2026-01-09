@@ -34,10 +34,8 @@ public class ShipmentController {
         }
 
         @PostMapping("/{shipmentId}/shipped")
-        public ResponseEntity<ShipmentResponseDto> markShipped(
-                        @PathVariable Long shipmentId,
-                        @RequestParam String trackingNumber) {
-                ShipmentResponseDto dto = shipmentService.markShipped(shipmentId, trackingNumber);
+        public ResponseEntity<ShipmentResponseDto> markShipped(@PathVariable Long shipmentId) {
+                ShipmentResponseDto dto = shipmentService.markShipped(shipmentId);
                 return ResponseEntity.ok(dto);
         }
 

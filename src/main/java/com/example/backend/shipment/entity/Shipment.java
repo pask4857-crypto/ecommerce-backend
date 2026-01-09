@@ -42,6 +42,9 @@ public class Shipment {
     @Column(name = "delivered_at")
     private LocalDateTime deliveredAt;
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     /*
      * =========================
      * Factory Method
@@ -52,6 +55,7 @@ public class Shipment {
         shipment.orderId = orderId;
         shipment.shippingMethod = shippingMethod;
         shipment.status = ShipmentStatus.PENDING;
+        shipment.updatedAt = LocalDateTime.now();
         return shipment;
     }
 
@@ -67,6 +71,7 @@ public class Shipment {
         this.status = ShipmentStatus.SHIPPED;
         this.trackingNumber = trackingNumber;
         this.shippedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void markDelivered() {
@@ -75,6 +80,7 @@ public class Shipment {
         }
         this.status = ShipmentStatus.DELIVERED;
         this.deliveredAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void cancel() {
@@ -82,5 +88,6 @@ public class Shipment {
             throw new IllegalStateException("已送達的出貨單不可取消");
         }
         this.status = ShipmentStatus.CANCELLED;
+        this.updatedAt = LocalDateTime.now();
     }
 }

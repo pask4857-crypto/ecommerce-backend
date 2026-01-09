@@ -77,8 +77,8 @@ public class Payment {
      */
 
     public void assignMerchantTradeNo(String merchantTradeNo) {
-        if (this.merchantTradeNo != null) {
-            throw new IllegalStateException("MerchantTradeNo 已存在，不能重複指定");
+        if (this.paymentStatus == PaymentStatus.PAID) {
+            throw new IllegalStateException("已付款的交易不能重新設定 MerchantTradeNo");
         }
         this.merchantTradeNo = merchantTradeNo;
         this.updatedAt = LocalDateTime.now();
@@ -104,6 +104,11 @@ public class Payment {
 
     public void markFailed() {
         this.paymentStatus = PaymentStatus.FAILED;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void markPending() {
+        this.paymentStatus = PaymentStatus.PENDING;
         this.updatedAt = LocalDateTime.now();
     }
 
