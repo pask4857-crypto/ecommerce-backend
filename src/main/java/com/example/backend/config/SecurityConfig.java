@@ -37,6 +37,9 @@ public class SecurityConfig {
                                                 // 後台 API
                                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
+                                                // 綠界 API
+                                                .requestMatchers("/api/payments/ecpay/callback").permitAll()
+
                                                 // 其餘 API 需要登入
                                                 .requestMatchers("/api/**").authenticated()
 

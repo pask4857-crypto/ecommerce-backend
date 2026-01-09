@@ -21,6 +21,9 @@ public class PaymentCallbackController {
         // 綠界會送一堆欄位
         paymentService.processEcpayCallback(params);
 
+        // 印出回傳參數
+        System.out.println("⚡ ECPay callback:" + params);
+
         // 回傳 SUCCESS 才算處理成功
         return ResponseEntity.ok("1|OK");
     }

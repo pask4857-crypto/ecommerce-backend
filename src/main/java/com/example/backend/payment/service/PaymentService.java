@@ -138,7 +138,7 @@ public class PaymentService {
         params.put("TotalAmount", order.getTotalAmount().toBigInteger().toString());
         params.put("TradeDesc", "測試訂單：" + order.getId());
         params.put("ItemName", "商品" + order.getId());
-        params.put("ReturnURL", "http://localhost:8080/api/payments/ecpay/callback");
+        params.put("ReturnURL", "https://ceremonious-achromic-catrice.ngrok-free.dev/api/payments/ecpay/callback");
         params.put("ChoosePayment", "Credit"); // 建議用 Credit 測試
         params.put("EncryptType", "1"); // SHA256
 
