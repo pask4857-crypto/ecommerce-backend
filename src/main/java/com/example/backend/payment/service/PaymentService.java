@@ -187,6 +187,12 @@ public class PaymentService {
         if ("1".equals(rtnCode)) {
             payment.markSuccess();
             order.pay();
+
+            // ➜ 自動建立出貨單
+            shipmentService.createShipment(order.getId(), "綠界-一般宅配");
+
+            return;
+
         } else {
             payment.markFailed();
             order.paymentFailed();

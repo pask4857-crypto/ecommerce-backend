@@ -1,6 +1,7 @@
 package com.example.backend.shipment.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,9 +20,19 @@ public class ShipmentService {
 
     @Transactional
     public ShipmentResponseDto createShipment(Long orderId, String shippingMethod) {
+
+        // 如果已經建立過，回傳 DTO
+        Optional<Shipment> existing = shipmentRepository.findByOrderId(orderId);
+        if (existing.isPresent()) {
+            return ShipmentResponseDto.fromEntity(existing.get());
+        }
+
         Shipment shipment = Shipment.create(orderId, shippingMethod);
         shipment = shipmentRepository.save(shipment);
-        return toResponse(shipment);
+
+        Shipment saved = shipmentRepository.save(shipment); // 接住 save 回傳值
+
+        return ShipmentResponseDto.fromEntity(saved);
     }
 
     @Transactional
