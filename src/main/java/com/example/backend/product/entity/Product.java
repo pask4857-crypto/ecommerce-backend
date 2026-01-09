@@ -75,6 +75,13 @@ public class Product {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void archive() {
+        if (this.status == ProductStatus.ARCHIVED) {
+            throw new IllegalStateException("商品已封存");
+        }
+        this.status = ProductStatus.ARCHIVED;
+    }
+
     public void deactivate() {
         this.status = ProductStatus.INACTIVE;
         this.updatedAt = LocalDateTime.now();

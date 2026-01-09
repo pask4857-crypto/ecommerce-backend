@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import com.example.backend.product.dto.ProductDetailResponse;
 import com.example.backend.product.dto.ProductImageRequest;
 import com.example.backend.product.dto.ProductResponse;
 import com.example.backend.product.dto.ProductVariantRequest;
+import com.example.backend.product.entity.Product;
 import com.example.backend.product.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -71,5 +73,11 @@ public class ProductController {
             @PathVariable Long productId) {
         productService.deactivateProduct(productId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{productId}/archive")
+    public ResponseEntity<ProductResponse> archiveProduct(@PathVariable Long productId) {
+        Product product = productService.archiveProduct(productId);
+        return ResponseEntity.ok(ProductResponse.fromEntity(product));
     }
 }

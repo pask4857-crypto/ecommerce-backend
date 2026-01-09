@@ -3,6 +3,7 @@ package com.example.backend.product.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.backend.product.dto.ProductCreateRequest;
 import com.example.backend.product.dto.ProductDetailResponse;
@@ -44,14 +45,16 @@ public class ProductService {
                 return productRepository.save(product).getId();
         }
 
-        public List<ProductResponse> getProducts() {
+        // 取得所有 ACTIVE 商品（回傳 Entity）
+        public List<Product> listActiveProducts() {
+                return productRepository.findByStatus(ProductStatus.ACTIVE);
+        }
 
-                return productRepository.findByStatus(ProductStatus.ACTIVE)
+        // 取得所有 ACTIVE 商品（回傳 DTO）
+        public List<ProductResponse> getProducts() {
+                return listActiveProducts()
                                 .stream()
-                                .map(p -> new ProductResponse(
-                                                p.getId(),
-                                                p.getName(),
-                                                p.getStatus()))
+                                .map(ProductResponse::fromEntity)
                                 .toList();
         }
 
@@ -164,5 +167,18 @@ public class ProductService {
                                 .orElseThrow(() -> new IllegalArgumentException("商品不存在"));
 
                 product.deactivate();
+        }
+
+        @Transactional
+        public Product archiveProduct(Long productId) {
+                Product product = productRepository.findById(productId)
+                                .orElseThrow(() -> new IllegalArgumentException("找不到商品"));
+
+                if (product.getStatus() == ProductStatus.ARCHIVED) {
+                        throw new IllegalStateException("商品已封存");
+                }
+
+                product.archive();
+                return product;
         }
 }
