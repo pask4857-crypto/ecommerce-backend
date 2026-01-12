@@ -1,6 +1,8 @@
 package com.example.backend.shipment.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -79,5 +81,25 @@ public class ShipmentService {
                 .shippedAt(shipment.getShippedAt())
                 .deliveredAt(shipment.getDeliveredAt())
                 .build();
+    }
+
+    @Transactional
+    public ShipmentResponseDto cancelShipment(Long shipmentId) {
+        Shipment shipment = shipmentRepository.findById(shipmentId)
+                .orElseThrow(() -> new NoSuchElementException("找不到運送紀錄：" + shipmentId));
+
+        if (shipment.getStatus() == ShipmentStatus.DELIVERED) {
+            throw new IllegalStateException("已送達的運送不能取消");
+        }
+
+        if (shipment.getStatus() == ShipmentStatus.CANCELLED) {
+            throw new IllegalStateException("此運送已經取消");
+        }
+
+        shipment.cancel();
+
+        shipment = shipmentRepository.save(shipment);
+
+        return ShipmentResponseDto.fromEntity(shipment);
     }
 }

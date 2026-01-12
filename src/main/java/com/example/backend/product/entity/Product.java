@@ -67,11 +67,18 @@ public class Product {
     }
 
     public void activate() {
-        if (this.status != ProductStatus.DRAFT
-                && this.status != ProductStatus.INACTIVE) {
-            throw new IllegalStateException("目前狀態不可上架");
+        if (this.status == ProductStatus.ACTIVE) {
+            return;
+        }
+        if (this.status == ProductStatus.ARCHIVED) {
+            throw new IllegalStateException("封存商品不可直接上架，請先解除封存");
         }
         this.status = ProductStatus.ACTIVE;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void deactivate() {
+        this.status = ProductStatus.INACTIVE;
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -80,10 +87,15 @@ public class Product {
             throw new IllegalStateException("商品已封存");
         }
         this.status = ProductStatus.ARCHIVED;
-    }
-
-    public void deactivate() {
-        this.status = ProductStatus.INACTIVE;
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void unarchive() {
+        if (this.status != ProductStatus.ARCHIVED) {
+            throw new IllegalStateException("商品不是封存狀態");
+        }
+        this.status = ProductStatus.ACTIVE;
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }

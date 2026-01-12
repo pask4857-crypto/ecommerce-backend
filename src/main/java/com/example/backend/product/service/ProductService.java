@@ -1,6 +1,7 @@
 package com.example.backend.product.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +59,13 @@ public class ProductService {
                                 .toList();
         }
 
+        public List<ProductResponse> getArchivedProducts() {
+                return productRepository.findByStatus(ProductStatus.ARCHIVED)
+                                .stream()
+                                .map(ProductResponse::fromEntity)
+                                .toList();
+        }
+
         public ProductDetailResponse getProductDetail(Long productId) {
 
                 Product product = productRepository.findById(productId)
@@ -70,12 +78,7 @@ public class ProductService {
                 List<ProductVariantResponse> variants = variantRepository
                                 .findByProductId(productId)
                                 .stream()
-                                .map(v -> new ProductVariantResponse(
-                                                v.getId(),
-                                                v.getSku(),
-                                                v.getVariantName(),
-                                                v.getStockQuantity(),
-                                                v.getStatus()))
+                                .map(ProductVariantResponse::fromEntity)
                                 .toList();
 
                 List<ProductImageResponse> images = imageRepository
@@ -152,15 +155,16 @@ public class ProductService {
          * =========================
          */
 
+        @Transactional
         public void activateProduct(Long productId) {
 
                 Product product = productRepository.findById(productId)
                                 .orElseThrow(() -> new IllegalArgumentException("商品不存在"));
 
                 product.activate();
-                // JPA dirty checking，自動更新
         }
 
+        @Transactional
         public void deactivateProduct(Long productId) {
 
                 Product product = productRepository.findById(productId)
@@ -180,5 +184,30 @@ public class ProductService {
 
                 product.archive();
                 return product;
+        }
+
+        @Transactional
+        public Product unarchiveProduct(Long productId) {
+                Product product = productRepository.findById(productId)
+                                .orElseThrow(() -> new IllegalArgumentException("找不到商品：" + productId));
+
+                if (product.getStatus() != ProductStatus.ARCHIVED) {
+                        throw new IllegalStateException("只能解除封存 ARCHIVED 的商品");
+                }
+
+                product.unarchive();
+                return product;
+        }
+
+        @Transactional
+        public ProductVariantResponse disableVariant(Long variantId) {
+                ProductVariant variant = variantRepository.findById(variantId)
+                                .orElseThrow(() -> new NoSuchElementException("找不到商品變體：" + variantId));
+
+                variant.disable();
+
+                variantRepository.save(variant);
+
+                return ProductVariantResponse.fromEntity(variant);
         }
 }

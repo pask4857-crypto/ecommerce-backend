@@ -87,6 +87,9 @@ public class Shipment {
         if (this.status == ShipmentStatus.DELIVERED) {
             throw new IllegalStateException("已送達的出貨單不可取消");
         }
+        if (this.status == ShipmentStatus.CANCELLED) {
+            throw new IllegalStateException("出貨單已取消，不能再次取消");
+        }
         this.status = ShipmentStatus.CANCELLED;
         this.updatedAt = LocalDateTime.now();
     }

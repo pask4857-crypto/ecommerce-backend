@@ -89,10 +89,41 @@ public class ProductVariant {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void decreaseStock(int quantity) {
-        if (this.stockQuantity < quantity) {
+    public void decreaseStock(int amount) {
+        if (amount <= 0)
+            throw new IllegalArgumentException("數量必須大於 0");
+        if (this.stockQuantity < amount) {
             throw new IllegalStateException("庫存不足");
         }
-        this.stockQuantity -= quantity;
+        this.stockQuantity -= amount;
+
+        // 庫存0時自動切換狀態
+        if (this.stockQuantity == 0) {
+            this.status = ProductVariantStatus.OUT_OF_STOCK;
+        }
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void markOutOfStock() {
+        if (this.status == ProductVariantStatus.OUT_OF_STOCK) {
+            throw new IllegalStateException("此商品變體已是 OUT_OF_STOCK 狀態");
+        }
+        this.status = ProductVariantStatus.OUT_OF_STOCK;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isOutOfStock() {
+        return this.status == ProductVariantStatus.OUT_OF_STOCK;
+    }
+
+    public void disable() {
+        if (this.status == ProductVariantStatus.DISABLED) {
+            throw new IllegalStateException("此商品變體已是停用狀態");
+        }
+        if (this.status == ProductVariantStatus.OUT_OF_STOCK) {
+            throw new IllegalStateException("OUT_OF_STOCK 建議補庫存或手動評估後再停用");
+        }
+        this.status = ProductVariantStatus.DISABLED;
+        this.updatedAt = LocalDateTime.now();
     }
 }

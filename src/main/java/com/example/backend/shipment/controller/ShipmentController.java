@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,5 +50,11 @@ public class ShipmentController {
         public ResponseEntity<List<ShipmentResponseDto>> getByOrderId(
                         @PathVariable Long orderId) {
                 return ResponseEntity.ok(shipmentService.getByOrderId(orderId));
+        }
+
+        @PatchMapping("/{shipmentId}/cancel")
+        public ResponseEntity<ShipmentResponseDto> cancelShipment(@PathVariable Long shipmentId) {
+                ShipmentResponseDto dto = shipmentService.cancelShipment(shipmentId);
+                return ResponseEntity.ok(dto);
         }
 }
